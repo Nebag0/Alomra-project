@@ -4,3 +4,5 @@ frontend/.next/
 
 # backend
 backend/node_modules/
+backend/.env
+backend/config/
