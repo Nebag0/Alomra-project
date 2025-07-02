@@ -20,8 +20,8 @@ app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
 app.get('/', (req, res) => {
   res.send('Bienvenue sur l\'API Alomra');
 });
-app.use('/admin', require('./admin/routes/Users_routes'));
-app.use('/admin', require('./admin/routes/Reclamation_route'));
+app.use('/admin', require('./routes/admin/Users_routes'));
+app.use('/superviseur', require('./routes/superviseur/Reclamation_routes'));
 
 // Lancer le serveur
 app.listen(5000, () => {
