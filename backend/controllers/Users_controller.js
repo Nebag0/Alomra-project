@@ -1,4 +1,6 @@
-const User = require('../../models/admin/Users_models');
+const User = require('../models/Users_models');
+const jwt = require('jsonwebtoken');
+const SECRET = process.env.JWT_SECRET || 'votre_secret_jwt'; // Mets une vraie valeur secrète en prod
 
 // Récupérer tous les utilisateurs
 async function get_users(req, res) {
@@ -79,10 +81,39 @@ async function delete_user(req, res) {
   }
 }
 
+// Connexion d'un utilisateur
+async function login(req, res) {
+  const { email, mot_de_passe } = req.body;
+  if (!email || !mot_de_passe) {
+    return res.status(400).json({ error: "Email et mot de passe requis." });
+  }
+
+  try {
+    const user = await User.getUserByEmail(email);
+    if (!user) {
+      return res.status(401).json({ error: "Identifiants invalides." });
+    }
+    // Vérification du mot de passe (ici en clair, à adapter si hashé)
+    if (user.mot_de_passe !== mot_de_passe) {
+      return res.status(401).json({ error: "Identifiants invalides." });
+    }
+    // Générer le token
+    const token = jwt.sign(
+      { id: user.id_user, email: user.email, role: user.role },
+      SECRET,
+      { expiresIn: '2h' }
+    );
+    res.json({ token });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   get_users,
   get_user_by_id,
   create_user,
   update_user,
-  delete_user
+  delete_user,
+  login
 };

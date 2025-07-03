@@ -1,4 +1,4 @@
-const db = require('../../config/connexion_db'); // adapte selon ton fichier de connexion
+const db = require('../config/connexion_db'); // adapte selon ton fichier de connexion
 
 // Créer une réclamation et lier les motifs
 async function createReclamation(data, motifIds) {

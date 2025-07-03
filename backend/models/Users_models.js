@@ -1,4 +1,4 @@
-const db = require('../../config/connexion_db');
+const db = require('../config/connexion_db');
 
 // Récupérer tous les utilisateurs
 async function getUsers() {
@@ -10,6 +10,12 @@ async function getUsers() {
 async function getUserById(id) {
     const [rows] = await db.execute('SELECT * FROM users WHERE id_user = ?', [id]);
     return rows[0];
+}
+
+// Récupérer un utilisateur par email
+async function getUserByEmail(email) {
+  const [rows] = await db.execute('SELECT * FROM users WHERE email = ?', [email]);
+  return rows[0];
 }
 
 // Vérifier si un utilisateur existe déjà par email
@@ -59,6 +65,7 @@ async function deleteUser(id) {
 module.exports = {
     getUsers,
     getUserById,
+    getUserByEmail,
     existsUser,
     createUser,
     updateUser,

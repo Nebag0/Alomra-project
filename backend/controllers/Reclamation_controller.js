@@ -1,4 +1,4 @@
-const Reclamation = require('../../models/superviseur/Reclamation_model');
+const Reclamation = require('../models/Reclamation_model');
 
 create_reclamation = async (req, res) => {
     const {
