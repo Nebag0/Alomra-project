@@ -1,9 +1,55 @@
 "use client";
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const router = useRouter();
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setError("");
+    try {
+      const res = await fetch("http://localhost:5000/admin/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        credentials: "include",
+        body: JSON.stringify({
+          email: email,
+          mot_de_passe: password
+        }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setError(data.message || "Erreur de connexion");
+        return;
+      }
+      // Stocker le token dans le localStorage
+      if (data.token) {
+        localStorage.setItem("token", data.token);
+        // Décoder le token pour obtenir le rôle
+        const payload = JSON.parse(atob(data.token.split('.')[1]));
+        if (payload.role === "admin") {
+          router.push("/admin");
+        } else if (payload.role === "superviseur") {
+          router.push("/user");
+        } else {
+          setError("Rôle inconnu");
+        }
+      } else {
+        setError("Token manquant dans la réponse");
+      }
+    } catch (err) {
+      // Affiche le message d'erreur retourné par l'API si disponible
+      if (err.response && err.response.data && err.response.data.message) {
+        setError(err.response.data.message);
+      } else {
+        setError("Erreur serveur");
+      }
+    }
+  };
 
   return (
     <div className="relative flex min-h-screen items-center justify-center px-6 lg:px-8 py-12 bg-white text-gray-900">
@@ -21,7 +67,7 @@ export default function Login() {
           <h2 className="my-7 text-center text-2xl/9 font-bold tracking-tight text-gray-900">
             Connectez-vous à votre compte
           </h2>
-          <form action="#" method="POST" className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-6">
             <div>
               <label
                 htmlFor="email"
@@ -73,6 +119,9 @@ export default function Login() {
                 />
               </div>
             </div>
+            {error && (
+              <div className="text-red-500 text-sm text-center">{error}</div>
+            )}
             <div>
               <button
                 type="submit"

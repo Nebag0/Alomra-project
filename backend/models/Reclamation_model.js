@@ -41,6 +41,19 @@ async function getAllReclamations() {
     return rows;
 }
 
+// Récupérer les réclamations d'un superviseur
+async function getReclamationsByUser(userId) {
+    const [rows] = await db.execute(`
+        SELECT r.*, GROUP_CONCAT(m.nom) AS motifs
+        FROM reclamations r
+        LEFT JOIN reclamation_motif rm ON r.id = rm.reclamation_id
+        LEFT JOIN motifs m ON rm.motif_id = m.id
+        WHERE r.created_by = ?
+        GROUP BY r.id
+    `, [userId]);
+    return rows;
+}
+
 async function existsReclamation(cin_agent, date_reclamation) {
     const [rows] = await db.execute(
         'SELECT id FROM reclamations WHERE cin_agent = ? AND date_reclamation = ?',
@@ -100,6 +113,7 @@ async function getReclamationById(id) {
 module.exports = {
     createReclamation,
     getAllReclamations,
+    getReclamationsByUser,
     existsReclamation,
     updateReclamation,
     deleteReclamation,

@@ -91,11 +91,11 @@ async function login(req, res) {
   try {
     const user = await User.getUserByEmail(email);
     if (!user) {
-      return res.status(401).json({ error: "Identifiants invalides." });
+      return res.status(401).json({ message: "Identifiants invalides." });
     }
     // Vérification du mot de passe (ici en clair, à adapter si hashé)
     if (user.mot_de_passe !== mot_de_passe) {
-      return res.status(401).json({ error: "Identifiants invalides." });
+      return res.status(401).json({ message: "Identifiants invalides." });
     }
     // Générer le token
     const token = jwt.sign(

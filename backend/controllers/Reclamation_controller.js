@@ -27,7 +27,19 @@ create_reclamation = async (req, res) => {
     }
 };
 
-get_reclamations = async (req, res) => {
+// Pour les superviseurs : récupérer uniquement leurs propres réclamations
+get_reclamations_by_user = async (req, res) => {
+    try {
+        const userId = req.user.id;
+        const rows = await Reclamation.getReclamationsByUser(userId);
+        res.json(rows);
+    } catch (err) {
+        res.status(500).json({ error: err.message });
+    }
+};
+
+// Pour les admins : récupérer toutes les réclamations
+get_all_reclamations = async (req, res) => {
     try {
         const rows = await Reclamation.getAllReclamations();
         res.json(rows);
@@ -76,7 +88,8 @@ async function get_reclamation_by_id(req, res) {
 
 module.exports = {
     create_reclamation,
-    get_reclamations,
+    get_reclamations_by_user,
+    get_all_reclamations,
     update_reclamation,
     delete_reclamation,
     get_reclamation_by_id

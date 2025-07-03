@@ -1,11 +1,14 @@
 const express = require('express');
 const router = express.Router();
 const controller = require('../controllers/Reclamation_controller');
+const authenticateToken = require('../middleware/auth');
+const authorizeRoles = require('../middleware/authRole');
 
-router.get('/reclamations', controller.get_reclamations);
-router.post('/reclamations', controller.create_reclamation);
-router.put('/reclamations/:id', controller.update_reclamation);
-router.delete('/reclamations/:id', controller.delete_reclamation);
-router.get('/reclamations/:id', controller.get_reclamation_by_id);
+router.get('/reclamations', authenticateToken, authorizeRoles('superviseur'), controller.get_reclamations_by_user);
+router.get('/admin/reclamations', authenticateToken, authorizeRoles('admin'), controller.get_all_reclamations);
+router.post('/reclamations', authenticateToken, authorizeRoles('superviseur'), controller.create_reclamation);
+router.put('/reclamations/:id', authenticateToken, authorizeRoles('superviseur'), controller.update_reclamation);
+router.delete('/reclamations/:id', authenticateToken, authorizeRoles('superviseur'), controller.delete_reclamation);
+router.get('/reclamations/:id', authenticateToken, authorizeRoles('superviseur'), controller.get_reclamation_by_id);
 
 module.exports = router;

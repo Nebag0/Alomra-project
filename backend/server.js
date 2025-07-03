@@ -1,7 +1,6 @@
 const express = require('express');
 const cookieParser = require('cookie-parser'); 
-const path = require('path');
-const cors = require("cors");
+const cors = require('./middleware/cors'); // Assurez-vous que le chemin est correct
 require("dotenv").config();
 
 
@@ -14,7 +13,7 @@ app.use(cookieParser());
 //middleware & static files
 app.use(express.static('public'));
 app.use(express.urlencoded({ extended: true }));
-app.use('/uploads', express.static(path.join(__dirname, 'uploads')));
+app.use(cors); // Utilisation du middleware CORS
 
 // Routes
 app.get('/', (req, res) => {
