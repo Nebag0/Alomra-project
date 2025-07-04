@@ -1,14 +1,12 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import Modal from "@/components/Modal";
 import Sidebar from "@/components/Sidebar";
 
 export default function AdminHome() {
   const [users, setUsers] = useState([]);
   const [error, setError] = useState("");
   const [isConnected, setIsConnected] = useState(false);
-  const [selectedUser, setSelectedUser] = useState(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -69,7 +67,7 @@ export default function AdminHome() {
                 <tr
                   key={u.id_user}
                   className="hover:bg-indigo-50 transition cursor-pointer"
-                  onClick={() => setSelectedUser(u)}
+                  onClick={() => router.push(`/admin/users/${u.id_user}`)}
                 >
                   <td className="py-2 px-4">{u.nom}</td>
                   <td className="py-2 px-4">{u.prenom}</td>
@@ -81,18 +79,6 @@ export default function AdminHome() {
           </table>
         </div>
       </main>
-      <Modal open={!!selectedUser} onClose={() => setSelectedUser(null)}>
-        {selectedUser && (
-          <div>
-            <h2 className="text-xl font-bold mb-4 text-indigo-700">Détail utilisateur</h2>
-            <div className="mb-2"><b>Nom :</b> {selectedUser.nom}</div>
-            <div className="mb-2"><b>Prénom :</b> {selectedUser.prenom}</div>
-            <div className="mb-2"><b>Email :</b> {selectedUser.email}</div>
-            <div className="mb-2"><b>Rôle :</b> {selectedUser.role}</div>
-            {/* Ajoute d'autres champs si besoin */}
-          </div>
-        )}
-      </Modal>
     </div>
   );
 }

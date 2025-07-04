@@ -1,5 +1,6 @@
 const express = require('express');
 const cookieParser = require('cookie-parser'); 
+const morgan = require('morgan'); // Pour le logging des requêtes
 const cors = require('./middleware/cors'); // Assurez-vous que le chemin est correct
 require("dotenv").config();
 
@@ -8,6 +9,7 @@ require("dotenv").config();
 const app = express();
 app.use(express.json());
 app.use(cookieParser());
+app.use(morgan('dev')); // Utilisation de morgan pour logger les requêtes HTTP
 
 
 //middleware & static files

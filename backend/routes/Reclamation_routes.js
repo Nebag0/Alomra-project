@@ -5,7 +5,6 @@ const authenticateToken = require('../middleware/auth');
 const authorizeRoles = require('../middleware/authRole');
 
 router.get('/reclamations', authenticateToken, authorizeRoles('superviseur'), controller.get_reclamations_by_user);
-router.get('/admin/reclamations', authenticateToken, authorizeRoles('admin'), controller.get_all_reclamations);
 router.post('/reclamations', authenticateToken, authorizeRoles('superviseur'), controller.create_reclamation);
 router.put('/reclamations/:id', authenticateToken, authorizeRoles('superviseur'), controller.update_reclamation);
 router.delete('/reclamations/:id', authenticateToken, authorizeRoles('superviseur'), controller.delete_reclamation);

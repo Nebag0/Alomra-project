@@ -32,7 +32,7 @@ export default function Login() {
         // Décoder le token pour obtenir le rôle
         const payload = JSON.parse(atob(data.token.split('.')[1]));
         if (payload.role === "admin") {
-          router.push("/admin");
+          router.push("/admin/dashboard");
         } else if (payload.role === "superviseur") {
           router.push("/user");
         } else {

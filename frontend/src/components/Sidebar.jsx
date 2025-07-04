@@ -1,11 +1,13 @@
 import { useState } from "react";
 import Link from "next/link";
+import { ChartLine, ClipboardCheck, UserCog , LogOut } from "lucide-react"
+
 
 const LINKS = {
   admin: [
-    { href: "/admin", icon: "dashboard", label: "Tableau de bord" },
-    { href: "/admin/ajouter-utilisateur", icon: "person_add", label: "Ajouter un utilisateur" },
-    // Ajoute d'autres liens admin ici
+    { href: "/admin/dashboard", icon: <ChartLine className="h-8 w-8 text-white-700" />, label: "Dashboard" },
+    { href: "/admin/reclamations", icon: <ClipboardCheck className="h-8 w-8 text-white-700" />, label: "Réclamations" },
+    { href: "/admin/users", icon: <UserCog className="h-8 w-8 text-white-700" />, label: "Utilisateurs" },
   ],
   superviseur: [
     { href: "/user", icon: "dashboard", label: "Tableau de bord" },
@@ -39,8 +41,9 @@ export default function Sidebar({ isConnected, handleLogout, role = "admin" }) {
         {isConnected && (
           <button
             onClick={handleLogout}
-            className="mt-8 bg-red-600 hover:bg-red-700 transition px-4 py-2 rounded text-white font-semibold"
+            className="mt-8 flex items-center justify-center bg-red-600 hover:bg-red-700 transition px-4 py-2 rounded text-white font-semibold"
           >
+            <LogOut className="h-5 w-5 mr-2" />
             Se déconnecter
           </button>
         )}
@@ -90,8 +93,9 @@ export default function Sidebar({ isConnected, handleLogout, role = "admin" }) {
             {isConnected && (
               <button
                 onClick={() => { setOpen(false); handleLogout(); }}
-                className="mt-8 bg-red-600 hover:bg-red-700 transition px-4 py-2 rounded text-white font-semibold"
+                className="mt-8 flex items-center justify-center bg-red-600 hover:bg-red-700 transition px-4 py-2 rounded text-white font-semibold"
               >
+                <LogOut className="h-5 w-5 mr-2" />
                 Se déconnecter
               </button>
             )}

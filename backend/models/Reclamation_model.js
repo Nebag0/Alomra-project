@@ -41,6 +41,19 @@ async function getAllReclamations() {
     return rows;
 }
 
+async function get_all_reclamations() {
+  const [rows] = await db.query(`
+    SELECT 
+      r.*, 
+      u.nom AS superviseur_nom, 
+      u.prenom AS superviseur_prenom
+    FROM reclamations r
+    LEFT JOIN users u ON r.created_by = u.id_user
+    ORDER BY r.id DESC
+  `);
+  return rows;
+}
+
 // Récupérer les réclamations d'un superviseur
 async function getReclamationsByUser(userId) {
     const [rows] = await db.execute(`
@@ -117,5 +130,6 @@ module.exports = {
     existsReclamation,
     updateReclamation,
     deleteReclamation,
-    getReclamationById
+    getReclamationById,
+    get_all_reclamations // pour admin
 };

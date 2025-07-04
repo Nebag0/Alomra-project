@@ -40,12 +40,13 @@ get_reclamations_by_user = async (req, res) => {
 
 // Pour les admins : récupérer toutes les réclamations
 get_all_reclamations = async (req, res) => {
-    try {
-        const rows = await Reclamation.getAllReclamations();
-        res.json(rows);
-    } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
+  try {
+    const rows = await Reclamation.get_all_reclamations();
+    res.json(rows);
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
 };
 
 // Mettre à jour une réclamation
