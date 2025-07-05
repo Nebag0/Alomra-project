@@ -1,17 +1,17 @@
 import { useState } from "react";
 import Link from "next/link";
-import { ChartLine, ClipboardCheck, UserCog , LogOut } from "lucide-react"
-
+import { ChartLine, ClipboardCheck, UserCog, LogOut } from "lucide-react";
 
 const LINKS = {
   admin: [
     { href: "/admin/dashboard", icon: <ChartLine className="h-8 w-8 text-white-700" />, label: "Dashboard" },
     { href: "/admin/reclamations", icon: <ClipboardCheck className="h-8 w-8 text-white-700" />, label: "Réclamations" },
     { href: "/admin/users", icon: <UserCog className="h-8 w-8 text-white-700" />, label: "Utilisateurs" },
+    { href: "/profil", icon: <UserCog className="h-8 w-8 text-white-700" />, label: "Profil" },
   ],
   superviseur: [
-    { href: "/user", icon: "dashboard", label: "Tableau de bord" },
-    { href: "/user/ajouter-reclamation", icon: "add_circle", label: "Ajouter une réclamation" },
+    { href: "/superviseur", icon: <ChartLine className="h-8 w-8 text-white-700" />, label: "Mes réclamations" },
+    { href: "/profil", icon: <UserCog className="h-8 w-8 text-white-700" />, label: "Profil" },
     // Ajoute d'autres liens superviseur ici
   ]
 };
@@ -32,7 +32,7 @@ export default function Sidebar({ isConnected, handleLogout, role = "admin" }) {
           {links.map(link => (
             <li key={link.href}>
               <Link href={link.href} className="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-800 transition">
-                <span className="material-icons">{link.icon}</span>
+                {link.icon}
                 {link.label}
               </Link>
             </li>
@@ -71,7 +71,7 @@ export default function Sidebar({ isConnected, handleLogout, role = "admin" }) {
       {open && (
         <div className="fixed inset-0 z-40 flex">
           {/* Fond semi-transparent */}
-          <div className="fixed inset-0 bg-black bg-opacity-30" onClick={() => setOpen(false)} />
+          <div className="fixed inset-0 bg-opacity-40 backdrop-blur-sm transition" onClick={() => setOpen(false)} />
           <div className="relative bg-gradient-to-b from-indigo-700 to-indigo-900 text-white w-60 h-full shadow-lg p-8 z-50 animate-fade-in flex flex-col">
             <button
               className="absolute top-4 right-4 text-white text-2xl"
@@ -84,7 +84,7 @@ export default function Sidebar({ isConnected, handleLogout, role = "admin" }) {
               {links.map(link => (
                 <li key={link.href}>
                   <Link href={link.href} className="flex items-center gap-2 px-3 py-2 rounded hover:bg-indigo-800 transition" onClick={() => setOpen(false)}>
-                    <span className="material-icons">{link.icon}</span>
+                    {link.icon}
                     {link.label}
                   </Link>
                 </li>

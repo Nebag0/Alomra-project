@@ -44,7 +44,7 @@ export default function ReclamationDetail() {
           <div><b>Site :</b> {reclamation.site_affectation}</div>
           <div><b>Poste :</b> {reclamation.poste}</div>
           <div><b>Créée par :</b> {reclamation.superviseur_nom} {reclamation.superviseur_prenom}</div>
-        </div>
+        </div>                    
         <button
           onClick={() => router.back()}
           className="mt-6 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"

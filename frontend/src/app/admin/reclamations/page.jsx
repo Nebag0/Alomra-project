@@ -62,7 +62,11 @@ export default function AdminReclamations() {
             </thead>
             <tbody className="bg-white divide-y divide-indigo-100">
               {reclamations.map((r) => (
-                <tr key={r.id} className="hover:bg-indigo-50 transition">
+                <tr
+                  key={r.id}
+                  className="hover:bg-indigo-50 transition cursor-pointer"
+                  onClick={() => router.push(`/admin/reclamations/${r.id}`)}
+                >
                   <td className="py-2 px-4">{r.nom_agent}</td>
                   <td className="py-2 px-4">{r.prenom_agent}</td>
                   <td className="py-2 px-4">{r.description}</td>

@@ -34,7 +34,7 @@ export default function Login() {
         if (payload.role === "admin") {
           router.push("/admin/dashboard");
         } else if (payload.role === "superviseur") {
-          router.push("/user");
+          router.push("/superviseur");
         } else {
           setError("Rôle inconnu");
         }

@@ -55,22 +55,73 @@ async function create_user(req, res) {
 
 // Modifier un utilisateur
 async function update_user(req, res) {
-  const { nom, prenom, email, mot_de_passe, role, photo } = req.body;
+  const { nom, prenom, email, role, photo, adminPassword } = req.body;
   const { id } = req.params;
 
-  if (!nom || !prenom || !email || !mot_de_passe) {
+  if (!nom || !prenom || !email) {
     return res.status(400).json({ error: "Tous les champs obligatoires doivent être remplis." });
   }
 
+  // Vérifier le mot de passe administrateur si fourni
+  if (adminPassword) {
+    try {
+      const adminUser = await User.getUserById(req.user.id);
+      if (!adminUser || adminUser.mot_de_passe !== adminPassword) {
+        return res.status(401).json({ error: "Mot de passe administrateur incorrect." });
+      }
+    } catch (err) {
+      return res.status(500).json({ error: "Erreur lors de la vérification du mot de passe." });
+    }
+  }
+
   try {
-    await User.updateUser(id, { nom, prenom, email, mot_de_passe, role, photo });
+    const updateData = {
+      nom: nom.trim(),
+      prenom: prenom.trim(),
+      email: email.trim(),
+      role: role || 'superviseur',
+      photo: photo || null
+    };
+    
+    await User.updateUser(id, updateData);
     res.status(200).json({ message: "Utilisateur modifié avec succès." });
   } catch (err) {
     res.status(500).json({ error: err.message });
   }
 }
 
-// Supprimer un utilisateur
+// Supprimer un utilisateur avec vérification de sécurité
+async function delete_user_secure(req, res) {
+  const { id } = req.params;
+  const { adminPassword } = req.body;
+  
+  try {
+    // Vérifier que l'utilisateur à supprimer existe
+    const userToDelete = await User.getUserById(id);
+    if (!userToDelete) {
+      return res.status(404).json({ error: "Utilisateur non trouvé." });
+    }
+
+    // Vérifier que l'admin ne peut supprimer que des superviseurs
+    if (userToDelete.role === 'admin') {
+      return res.status(403).json({ error: "Vous ne pouvez pas supprimer un compte administrateur." });
+    }
+
+    // Vérifier le mot de passe de l'admin
+    const adminUser = await User.getUserById(req.user.id);
+    if (!adminUser || adminUser.mot_de_passe !== adminPassword) {
+      return res.status(401).json({ error: "Mot de passe administrateur incorrect." });
+    }
+
+    // Supprimer l'utilisateur et ses réclamations
+    await User.deleteUserWithReclamations(id);
+    res.status(200).json({ message: "Utilisateur et ses réclamations supprimés avec succès." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+// Supprimer un utilisateur (ancienne version)
 async function delete_user(req, res) {
   const { id } = req.params;
   try {
@@ -91,11 +142,11 @@ async function login(req, res) {
   try {
     const user = await User.getUserByEmail(email);
     if (!user) {
-      return res.status(401).json({ message: "Identifiants invalides." });
+      return res.status(401).json({ message: "Utilisateur non trouvé." });
     }
     // Vérification du mot de passe (ici en clair, à adapter si hashé)
     if (user.mot_de_passe !== mot_de_passe) {
-      return res.status(401).json({ message: "Identifiants invalides." });
+      return res.status(401).json({ message: "Mot de passe invalide." });
     }
     // Générer le token
     const token = jwt.sign(
@@ -109,11 +160,25 @@ async function login(req, res) {
   }
 }
 
+// Récupérer le profil de l'utilisateur connecté
+async function get_my_profile(req, res) {
+  try {
+    const id = req.user.id || req.user.id_user;
+    const user = await User.get_user_by_id_db(id);
+    if (!user) return res.status(404).json({ error: "Utilisateur non trouvé" });
+    res.json(user);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   get_users,
   get_user_by_id,
   create_user,
   update_user,
   delete_user,
+  delete_user_secure,
+  get_my_profile,
   login
 };

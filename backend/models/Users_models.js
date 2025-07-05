@@ -43,15 +43,22 @@ async function createUser(data) {
 
 // Modifier un utilisateur
 async function updateUser(id, data) {
+    const updateData = {
+        nom: data.nom || null,
+        prenom: data.prenom || null,
+        email: data.email || null,
+        role: data.role || 'superviseur',
+        photo: data.photo || null
+    };
+    
     await db.execute(
-        `UPDATE users SET nom=?, prenom=?, email=?, mot_de_passe=?, role=?, photo=? WHERE id_user=?`,
+        `UPDATE users SET nom=?, prenom=?, email=?, role=?, photo=? WHERE id_user=?`,
         [
-            data.nom,
-            data.prenom,
-            data.email,
-            data.mot_de_passe,
-            data.role || 'superviseur',
-            data.photo || null,
+            updateData.nom,
+            updateData.prenom,
+            updateData.email,
+            updateData.role,
+            updateData.photo,
             id
         ]
     );
@@ -62,6 +69,42 @@ async function deleteUser(id) {
     await db.execute('DELETE FROM users WHERE id_user=?', [id]);
 }
 
+// Supprimer un utilisateur et ses réclamations
+async function deleteUserWithReclamations(id) {
+    // Commencer une transaction
+    const connection = await db.getConnection();
+    await connection.beginTransaction();
+    
+    try {
+        // 1. Supprimer d'abord les entrées dans reclamation_motif pour les réclamations de cet utilisateur
+        await connection.execute(
+            'DELETE rm FROM reclamation_motif rm INNER JOIN reclamations r ON rm.reclamation_id = r.id WHERE r.created_by = ?', 
+            [id]
+        );
+        
+        // 2. Supprimer les réclamations associées
+        await connection.execute('DELETE FROM reclamations WHERE created_by = ?', [id]);
+        
+        // 3. Puis supprimer l'utilisateur
+        await connection.execute('DELETE FROM users WHERE id_user = ?', [id]);
+        
+        // Valider la transaction
+        await connection.commit();
+    } catch (error) {
+        // En cas d'erreur, annuler la transaction
+        await connection.rollback();
+        throw error;
+    } finally {
+        connection.release();
+    }
+}
+
+// Récupérer un utilisateur par ID (méthode supplémentaire)
+async function get_user_by_id_db(id) {
+  const [rows] = await db.query("SELECT id_user, nom, prenom, email, role FROM users WHERE id_user = ?", [id]);
+  return rows[0];
+}
+
 module.exports = {
     getUsers,
     getUserById,
@@ -69,5 +112,7 @@ module.exports = {
     existsUser,
     createUser,
     updateUser,
-    deleteUser
+    deleteUser,
+    deleteUserWithReclamations,
+    get_user_by_id_db
 };

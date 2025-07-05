@@ -73,9 +73,23 @@ async function delete_reclamation(req, res) {
 }
 
 // Obtenir une réclamation par ID
-async function get_reclamation_by_id(req, res) {
-    const { id } = req.params;
-    try {
+// async function get_reclamation_by_id(req, res) {
+//     const { id } = req.params;
+//     try {
+//         const reclamation = await Reclamation.getReclamationById(id);
+//         if (reclamation) {
+//             res.status(200).json(reclamation);
+//         } else {
+//             res.status(404).json({ error: "Réclamation non trouvée." });
+//         }
+//     } catch (err) {
+//         res.status(500).json({ error: err.message });
+//     }
+// }
+
+get_reclamation_by_id = async (req, res) => {
+const { id } = req.params;
+  try {
         const reclamation = await Reclamation.getReclamationById(id);
         if (reclamation) {
             res.status(200).json(reclamation);
@@ -83,9 +97,9 @@ async function get_reclamation_by_id(req, res) {
             res.status(404).json({ error: "Réclamation non trouvée." });
         }
     } catch (err) {
-        res.status(500).json({ error: err.message });
-    }
-}
+    res.status(500).json({ error: err.message });
+  }
+};
 
 module.exports = {
     create_reclamation,
