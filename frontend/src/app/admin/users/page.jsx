@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
+import { FormModal } from "@/components/Modal";
 
 export default function AdminHome() {
   const [users, setUsers] = useState([]);
@@ -12,7 +13,7 @@ export default function AdminHome() {
     nom: "",
     prenom: "",
     email: "",
-    mot_de_passe: "", // <-- ici
+    mot_de_passe: "",
     role: "superviseur"
   });
   const [success, setSuccess] = useState("");
@@ -45,6 +46,37 @@ export default function AdminHome() {
       .catch(() => setError("Erreur serveur"));
   }, [router]);
 
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setSuccess("");
+    setError("");
+    const token = localStorage.getItem("token");
+    const res = await fetch("http://localhost:5000/admin/createUser", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${token}`
+      },
+      body: JSON.stringify(form)
+    });
+    const data = await res.json();
+    if (res.ok) {
+      setShowModal(false);
+      setForm({ nom: "", prenom: "", email: "", mot_de_passe: "", role: "superviseur" });
+      setSuccess("Utilisateur ajouté avec succès !");
+      // Rafraîchir la liste des utilisateurs
+      fetch("http://localhost:5000/admin/getusers", {
+        headers: { Authorization: `Bearer ${token}` }
+      })
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) setUsers(data);
+        });
+    } else {
+      setError(data.error || "Erreur lors de l'ajout.");
+    }
+  };
+
   const handleLogout = () => {
     localStorage.removeItem("token");
     setIsConnected(false);
@@ -68,6 +100,11 @@ export default function AdminHome() {
             + Ajouter un utilisateur
           </button>
         </div>
+        {success && (
+          <div className="mb-4 p-4 bg-green-100 border border-green-400 text-green-700 rounded-lg">
+            {success}
+          </div>
+        )}
         <div className="overflow-x-auto rounded-lg shadow-lg bg-white">
           <table className="min-w-full divide-y divide-indigo-200">
             <thead className="bg-indigo-700">
@@ -95,113 +132,70 @@ export default function AdminHome() {
           </table>
         </div>
       </main>
-      {showModal && (
-        <div className="flex items-center justify-center absolute inset-0 bg-opacity-40 backdrop-blur-sm transition bg-opacity-40 border border-indigo-900 border-solid">
-          <div className="bg-white rounded-lg shadow-lg p-8 w-full max-w-md relative">
-            <button
-              className="absolute top-2 right-4 text-2xl text-gray-600"
-              onClick={() => setShowModal(false)}
-              aria-label="Fermer"
-            >
-              &times;
-            </button>
-            <h2 className="text-xl font-bold mb-4 text-indigo-700">Ajouter un utilisateur</h2>
-            {success && <div className="text-green-600 mb-2">{success}</div>}
-            <form
-              onSubmit={async (e) => {
-                e.preventDefault();
-                setSuccess("");
-                setError("");
-                const token = localStorage.getItem("token");
-                const res = await fetch("http://localhost:5000/admin/createUser", {
-                  method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`
-                  },
-                  body: JSON.stringify(form)
-                });
-                const data = await res.json();
-                if (res.ok) {
-                  setShowModal(false);
-                  setForm({ nom: "", prenom: "", email: "", mot_de_passe: "", role: "superviseur" });
-                  // Affiche une alerte de succès
-                  alert("Utilisateur ajouté !");
-                  // Rafraîchir la liste des utilisateurs
-                  fetch("http://localhost:5000/admin/getusers", {
-                    headers: { Authorization: `Bearer ${token}` }
-                  })
-                    .then(res => res.json())
-                    .then(data => {
-                      if (Array.isArray(data)) setUsers(data);
-                    });
-                } else {
-                  // Affiche une alerte d'erreur
-                  alert(data.error || "Erreur lors de l'ajout.");
-                }
-              }}
-              className="space-y-3"
-            >
-              <div>
-                <label className="block font-semibold mb-1">Nom</label>
-                <input
-                  type="text"
-                  className="w-full border rounded px-3 py-2"
-                  value={form.nom}
-                  onChange={e => setForm(f => ({ ...f, nom: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="block font-semibold mb-1">Prénom</label>
-                <input
-                  type="text"
-                  className="w-full border rounded px-3 py-2"
-                  value={form.prenom}
-                  onChange={e => setForm(f => ({ ...f, prenom: e.target.value }))}
-                />
-              </div>
-              <div>
-                <label className="block font-semibold mb-1">Email</label>
-                <input
-                  type="email"
-                  className="w-full border rounded px-3 py-2"
-                  value={form.email}
-                  onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
-                  
-                />
-              </div>
-              <div>
-                <label className="block font-semibold mb-1">Mot de passe</label>
-                <input
-                  type="password"
-                  className="w-full border rounded px-3 py-2"
-                  value={form.mot_de_passe}
-                  onChange={e => setForm(f => ({ ...f, mot_de_passe: e.target.value }))}
-                  
-                />
-              </div>
-              <div>
-                <label className="block font-semibold mb-1">Rôle</label>
-                <select
-                  className="w-full border rounded px-3 py-2"
-                  value={form.role}
-                  onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
-                >
-                  <option value="superviseur">Superviseur</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <button
-                type="submit"
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded font-semibold transition"
-              >
-                Ajouter
-              </button>
-            </form>
-            {error && <div className="text-red-600 mt-2">{error}</div>}
-          </div>
+
+      {/* Modal d'ajout d'utilisateur */}
+      <FormModal 
+        open={showModal} 
+        onClose={() => setShowModal(false)}
+        onSubmit={handleSubmit}
+        title="Ajouter un utilisateur"
+        submitText="Ajouter"
+        cancelText="Annuler"
+      >
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Nom</label>
+          <input
+            type="text"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={form.nom}
+            onChange={e => setForm(f => ({ ...f, nom: e.target.value }))}
+            required
+          />
         </div>
-      )}
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Prénom</label>
+          <input
+            type="text"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={form.prenom}
+            onChange={e => setForm(f => ({ ...f, prenom: e.target.value }))}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input
+            type="email"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={form.email}
+            onChange={e => setForm(f => ({ ...f, email: e.target.value }))}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Mot de passe</label>
+          <input
+            type="password"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={form.mot_de_passe}
+            onChange={e => setForm(f => ({ ...f, mot_de_passe: e.target.value }))}
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Rôle</label>
+          <select
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={form.role}
+            onChange={e => setForm(f => ({ ...f, role: e.target.value }))}
+            required
+          >
+            <option value="superviseur">Superviseur</option>
+            <option value="admin">Admin</option>
+          </select>
+        </div>
+        {error && <div className="text-red-600 text-sm">{error}</div>}
+      </FormModal>
     </div>
   );
 }

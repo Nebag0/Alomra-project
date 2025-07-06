@@ -63,6 +63,7 @@ async function getReclamationsByUser(userId) {
         LEFT JOIN motifs m ON rm.motif_id = m.id
         WHERE r.created_by = ?
         GROUP BY r.id
+        ORDER BY r.id DESC
     `, [userId]);
     return rows;
 }

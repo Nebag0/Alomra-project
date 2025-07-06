@@ -55,23 +55,11 @@ async function create_user(req, res) {
 
 // Modifier un utilisateur
 async function update_user(req, res) {
-  const { nom, prenom, email, role, photo, adminPassword } = req.body;
+  const { nom, prenom, email, role, photo } = req.body;
   const { id } = req.params;
 
   if (!nom || !prenom || !email) {
     return res.status(400).json({ error: "Tous les champs obligatoires doivent être remplis." });
-  }
-
-  // Vérifier le mot de passe administrateur si fourni
-  if (adminPassword) {
-    try {
-      const adminUser = await User.getUserById(req.user.id);
-      if (!adminUser || adminUser.mot_de_passe !== adminPassword) {
-        return res.status(401).json({ error: "Mot de passe administrateur incorrect." });
-      }
-    } catch (err) {
-      return res.status(500).json({ error: "Erreur lors de la vérification du mot de passe." });
-    }
   }
 
   try {
@@ -87,6 +75,45 @@ async function update_user(req, res) {
     res.status(200).json({ message: "Utilisateur modifié avec succès." });
   } catch (err) {
     res.status(500).json({ error: err.message });
+  }
+}
+
+// Changer le mot de passe de l'utilisateur connecté
+async function change_password(req, res) {
+  const { oldPassword, newPassword } = req.body;
+  const userId = req.user.id || req.user.id_user;
+
+  if (!oldPassword || !newPassword) {
+    return res.status(400).json({ error: "Ancien et nouveau mot de passe requis." });
+  }
+
+  if (newPassword.length < 6) {
+    return res.status(400).json({ error: "Le nouveau mot de passe doit contenir au moins 6 caractères." });
+  }
+
+  try {
+    // Récupérer l'utilisateur actuel
+    const user = await User.getUserById(userId);
+    if (!user) {
+      return res.status(404).json({ error: "Utilisateur non trouvé." });
+    }
+
+    // Vérifier l'ancien mot de passe
+    if (user.mot_de_passe !== oldPassword) {
+      return res.status(401).json({ error: "Ancien mot de passe incorrect." });
+    }
+
+    // Vérifier que le nouveau mot de passe est différent de l'ancien
+    if (oldPassword === newPassword) {
+      return res.status(400).json({ error: "Le nouveau mot de passe doit être différent de l'ancien." });
+    }
+
+    // Mettre à jour le mot de passe
+    await User.updateUser(userId, { mot_de_passe: newPassword });
+    res.status(200).json({ message: "Mot de passe changé avec succès." });
+  } catch (err) {
+    console.error('Erreur lors du changement de mot de passe:', err);
+    res.status(500).json({ error: "Erreur lors du changement de mot de passe." });
   }
 }
 
@@ -163,12 +190,38 @@ async function login(req, res) {
 // Récupérer le profil de l'utilisateur connecté
 async function get_my_profile(req, res) {
   try {
-    const id = req.user.id || req.user.id_user;
+    // Compatibilité avec différents formats de payload JWT
+    const id = req.user.id || req.user.id_user || req.user.ID || req.user.ID_USER;
+    if (!id) {
+      return res.status(400).json({ error: "Impossible de déterminer l'ID utilisateur depuis le token." });
+    }
     const user = await User.get_user_by_id_db(id);
     if (!user) return res.status(404).json({ error: "Utilisateur non trouvé" });
     res.json(user);
   } catch (err) {
+    console.error('Erreur get_my_profile:', err);
     res.status(500).json({ error: err.message });
+  }
+}
+
+// Vérifier le mot de passe administrateur
+async function verify_admin_password(req, res) {
+  const { adminPassword } = req.body;
+  
+  if (!adminPassword) {
+    return res.status(400).json({ error: "Mot de passe administrateur requis." });
+  }
+
+  try {
+    const adminUser = await User.getUserById(req.user.id);
+    if (!adminUser || adminUser.mot_de_passe !== adminPassword) {
+      return res.status(401).json({ error: "Mot de passe administrateur incorrect." });
+    }
+    
+    res.status(200).json({ message: "Mot de passe vérifié avec succès." });
+  } catch (err) {
+    console.error('Erreur verify_admin_password:', err);
+    res.status(500).json({ error: "Erreur lors de la vérification du mot de passe." });
   }
 }
 
@@ -180,5 +233,7 @@ module.exports = {
   delete_user,
   delete_user_secure,
   get_my_profile,
-  login
+  login,
+  change_password,
+  verify_admin_password
 };

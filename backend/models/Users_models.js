@@ -43,6 +43,15 @@ async function createUser(data) {
 
 // Modifier un utilisateur
 async function updateUser(id, data) {
+    // Si on ne veut changer que le mot de passe
+    if (data.mot_de_passe && Object.keys(data).length === 1) {
+        await db.execute(
+            'UPDATE users SET mot_de_passe=? WHERE id_user=?',
+            [data.mot_de_passe, id]
+        );
+        return;
+    }
+    // Sinon, update complet
     const updateData = {
         nom: data.nom || null,
         prenom: data.prenom || null,
@@ -50,7 +59,6 @@ async function updateUser(id, data) {
         role: data.role || 'superviseur',
         photo: data.photo || null
     };
-    
     await db.execute(
         `UPDATE users SET nom=?, prenom=?, email=?, role=?, photo=? WHERE id_user=?`,
         [

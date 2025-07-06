@@ -23,7 +23,7 @@ export default function ProfilePage() {
       const payload = JSON.parse(atob(token.split('.')[1]));
       setRole(payload.role);
       // Récupérer les infos utilisateur depuis l'API
-      fetch(`http://localhost:5000/admin/profil`, {
+      fetch(`http://localhost:5000/profil`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())

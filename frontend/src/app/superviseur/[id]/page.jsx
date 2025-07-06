@@ -1,8 +1,8 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
+import { Modal, ConfirmModal, FormModal } from "@/components/Modal";
 import Sidebar from "@/components/Sidebar";
-import Modal from "@/components/Modal";
 
 export default function ReclamationDetail() {
   const router = useRouter();
@@ -232,126 +232,91 @@ export default function ReclamationDetail() {
       </main>
 
       {/* Modal d'édition */}
-      {showEdit && (
-        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-40 backdrop-blur-sm z-50">
-          <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-lg relative max-h-[90vh] overflow-y-auto">
-            <button
-              className="absolute top-2 right-4 text-2xl text-gray-600 hover:text-gray-800"
-              onClick={() => setShowEdit(false)}
-              aria-label="Fermer"
-            >
-              &times;
-            </button>
-            <h2 className="text-xl font-bold mb-4 text-indigo-700">Modifier la réclamation</h2>
-            <form onSubmit={handleEdit} className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Nom de l'agent</label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={editForm.nom_agent}
-                  onChange={e => setEditForm(f => ({ ...f, nom_agent: e.target.value }))}
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Prénom de l'agent</label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={editForm.prenom_agent}
-                  onChange={e => setEditForm(f => ({ ...f, prenom_agent: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">CIN de l'agent</label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={editForm.cin_agent}
-                  onChange={e => setEditForm(f => ({ ...f, cin_agent: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
-                <textarea
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={editForm.description}
-                  onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
-                  required
-                  rows="3"
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Site d'affectation</label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={editForm.site_affectation}
-                  onChange={e => setEditForm(f => ({ ...f, site_affectation: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="md:col-span-2">
-                <label className="block text-sm font-medium text-gray-700 mb-1">Poste</label>
-                <input
-                  type="text"
-                  className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-                  value={editForm.poste}
-                  onChange={e => setEditForm(f => ({ ...f, poste: e.target.value }))}
-                  required
-                />
-              </div>
-              <div className="md:col-span-2 flex gap-3 pt-2 justify-end sticky bottom-0 bg-white pb-2">
-                <button
-                  type="submit"
-                  className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-md text-sm font-medium transition"
-                >
-                  Enregistrer
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setShowEdit(false)}
-                  className="bg-gray-300 hover:bg-gray-400 text-gray-700 px-4 py-2 rounded-md text-sm font-medium transition"
-                >
-                  Annuler
-                </button>
-              </div>
-            </form>
-            {error && <div className="text-red-600 mt-3 text-sm">{error}</div>}
+      <FormModal 
+        open={showEdit} 
+        onClose={() => setShowEdit(false)}
+        onSubmit={handleEdit}
+        title="Modifier la réclamation"
+        submitText="Enregistrer"
+        cancelText="Annuler"
+        size="lg"
+      >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Nom de l'agent</label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={editForm.nom_agent}
+              onChange={e => setEditForm(f => ({ ...f, nom_agent: e.target.value }))}
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Prénom de l'agent</label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={editForm.prenom_agent}
+              onChange={e => setEditForm(f => ({ ...f, prenom_agent: e.target.value }))}
+              required
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">CIN de l'agent</label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={editForm.cin_agent}
+              onChange={e => setEditForm(f => ({ ...f, cin_agent: e.target.value }))}
+              required
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Description</label>
+            <textarea
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={editForm.description}
+              onChange={e => setEditForm(f => ({ ...f, description: e.target.value }))}
+              required
+              rows="3"
+            />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Site d'affectation</label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={editForm.site_affectation}
+              onChange={e => setEditForm(f => ({ ...f, site_affectation: e.target.value }))}
+              required
+            />
+          </div>
+          <div className="md:col-span-2">
+            <label className="block text-sm font-medium text-gray-700 mb-1">Poste</label>
+            <input
+              type="text"
+              className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              value={editForm.poste}
+              onChange={e => setEditForm(f => ({ ...f, poste: e.target.value }))}
+              required
+            />
           </div>
         </div>
-      )}
+        {error && <div className="text-red-600 mt-3 text-sm">{error}</div>}
+      </FormModal>
 
       {/* Modal de confirmation de suppression */}
-      <Modal open={showDeleteModal} onClose={() => setShowDeleteModal(false)}>
-        <div className="text-center">
-          <h3 className="text-lg font-semibold mb-4 text-red-600">
-            Confirmer la suppression
-          </h3>
-          <p className="mb-4 text-gray-600">
-            Êtes-vous sûr de vouloir supprimer cette réclamation ? 
-            Cette action est irréversible.
-          </p>
-          <div className="flex gap-3 justify-center">
-            <button
-              onClick={handleDelete}
-              className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
-            >
-              Confirmer la suppression
-            </button>
-            <button
-              onClick={() => setShowDeleteModal(false)}
-              className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600"
-            >
-              Annuler
-            </button>
-          </div>
-          {error && <div className="text-red-600 mt-2">{error}</div>}
-        </div>
-      </Modal>
+      <ConfirmModal
+        open={showDeleteModal}
+        onClose={() => setShowDeleteModal(false)}
+        onConfirm={handleDelete}
+        title="Confirmer la suppression"
+        message="Êtes-vous sûr de vouloir supprimer cette réclamation ? Cette action est irréversible."
+        confirmText="Confirmer la suppression"
+        cancelText="Annuler"
+        variant="danger"
+      />
     </div>
   );
 } 

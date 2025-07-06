@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
+import { FormModal } from "@/components/Modal";
 
 export default function UserHome() {
   const [reclamations, setReclamations] = useState([]);
@@ -92,7 +93,6 @@ export default function UserHome() {
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      {/* Sidebar/Navbar */}
       <Sidebar isConnected={isConnected} handleLogout={handleLogout} role="superviseur" />
 
       {/* Main content */}
@@ -138,39 +138,74 @@ export default function UserHome() {
             </tbody>
           </table>
         </div>
-        {/* Modal */}
-        {showModal && (
-          <div className="fixed inset-0 z-40 flex items-center justify-center">
-            {/* Fond flouté et sombre mais visible */}
-            <div
-              className="absolute inset-0 bg-opacity-40 backdrop-blur-sm transition"
-              onClick={() => setShowModal(false)}
-            />
-            <div className="relative bg-white rounded-lg shadow-2xl p-8 w-full max-w-lg z-50 animate-fade-in border border-indigo-900 border-solid">
-              <button
-                onClick={() => setShowModal(false)}
-                className="absolute top-2 right-2 text-gray-400 hover:text-gray-700 text-2xl"
-                aria-label="Fermer"
-              >
-                &times;
-              </button>
-              <h2 className="text-xl font-bold mb-4 text-indigo-700">Ajouter une réclamation</h2>
-              <form onSubmit={handleSubmit} className="space-y-4">
-                <input name="nom_agent" value={form.nom_agent} onChange={handleChange} placeholder="Nom agent" className="w-full border rounded px-3 py-2 focus:outline-indigo-500" required />
-                <input name="prenom_agent" value={form.prenom_agent} onChange={handleChange} placeholder="Prénom agent" className="w-full border rounded px-3 py-2 focus:outline-indigo-500" required />
-                <input name="cin_agent" value={form.cin_agent} onChange={handleChange} placeholder="CIN agent" className="w-full border rounded px-3 py-2 focus:outline-indigo-500" required />
-                <textarea name="description" value={form.description} onChange={handleChange} placeholder="Description" className="w-full border rounded px-3 py-2 focus:outline-indigo-500" required />
-                <input name="date_reclamation" type="date" value={form.date_reclamation} onChange={handleChange} className="w-full border rounded px-3 py-2 focus:outline-indigo-500" required />
-                <input name="site_affectation" value={form.site_affectation} onChange={handleChange} placeholder="Site d'affectation" className="w-full border rounded px-3 py-2 focus:outline-indigo-500" required />
-                <input name="poste" value={form.poste} onChange={handleChange} placeholder="Poste" className="w-full border rounded px-3 py-2 focus:outline-indigo-500" required />
-                <button type="submit" className="w-full bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-500 text-white py-2 rounded hover:from-indigo-700 hover:to-purple-600 transition font-semibold">
-                  Ajouter
-                </button>
-                {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
-              </form>
-            </div>
-          </div>
-        )}
+
+        {/* Modal d'ajout de réclamation */}
+        <FormModal 
+          open={showModal} 
+          onClose={() => setShowModal(false)}
+          onSubmit={handleSubmit}
+          title="Ajouter une réclamation"
+          submitText="Ajouter"
+          cancelText="Annuler"
+        >
+          <input 
+            name="nom_agent" 
+            value={form.nom_agent} 
+            onChange={handleChange} 
+            placeholder="Nom agent" 
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+            required 
+          />
+          <input 
+            name="prenom_agent" 
+            value={form.prenom_agent} 
+            onChange={handleChange} 
+            placeholder="Prénom agent" 
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+            required 
+          />
+          <input 
+            name="cin_agent" 
+            value={form.cin_agent} 
+            onChange={handleChange} 
+            placeholder="CIN agent" 
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+            required 
+          />
+          <textarea 
+            name="description" 
+            value={form.description} 
+            onChange={handleChange} 
+            placeholder="Description" 
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+            required 
+          />
+          <input 
+            name="date_reclamation" 
+            type="date" 
+            value={form.date_reclamation} 
+            onChange={handleChange} 
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+            required 
+          />
+          <input 
+            name="site_affectation" 
+            value={form.site_affectation} 
+            onChange={handleChange} 
+            placeholder="Site d'affectation" 
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+            required 
+          />
+          <input 
+            name="poste" 
+            value={form.poste} 
+            onChange={handleChange} 
+            placeholder="Poste" 
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500" 
+            required 
+          />
+          {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
+        </FormModal>
       </main>
     </div>
   );

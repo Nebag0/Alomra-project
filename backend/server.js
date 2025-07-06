@@ -21,7 +21,14 @@ app.use(cors); // Utilisation du middleware CORS
 app.get('/', (req, res) => {
   res.send('Bienvenue sur l\'API Alomra');
 });
+
+// Routes pour les utilisateurs (accessible à tous les utilisateurs connectés)
+app.use('/profil', require('./routes/Profile_routes'));
+
+// Routes admin (accessible uniquement aux administrateurs)
 app.use('/admin', require('./routes/Users_routes'));
+
+// Routes superviseur
 app.use('/superviseur', require('./routes/Reclamation_routes'));
 
 // Lancer le serveur

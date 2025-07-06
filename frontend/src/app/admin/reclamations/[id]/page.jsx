@@ -9,13 +9,24 @@ export default function ReclamationDetail() {
   const { id } = params;
   const [reclamation, setReclamation] = useState(null);
   const [error, setError] = useState("");
+  const [isConnected, setIsConnected] = useState(false);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
     if (!token) {
+      setIsConnected(false);
       router.push("/login");
       return;
     }
+    setIsConnected(true);
+    
+    // Vérifier le rôle
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    if (payload.role !== "admin") {
+      router.push("/login");
+      return;
+    }
+
     fetch(`http://localhost:5000/admin/reclamations/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
@@ -27,30 +38,96 @@ export default function ReclamationDetail() {
       .catch(() => setError("Erreur serveur"));
   }, [id, router]);
 
-  if (error) return <div className="text-red-500">{error}</div>;
-  if (!reclamation) return <div>Chargement...</div>;
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    setIsConnected(false);
+    router.push("/login");
+  };
+
+  if (error) return (
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar isConnected={isConnected} handleLogout={handleLogout} role="admin" />
+      <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-4 md:px-12 py-8">
+        <div className="text-red-500">{error}</div>
+      </main>
+    </div>
+  );
+  
+  if (!reclamation) return (
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar isConnected={isConnected} handleLogout={handleLogout} role="admin" />
+      <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-4 md:px-12 py-8">
+        <div className="p-4">Chargement...</div>
+      </main>
+    </div>
+  );
 
   return (
     <div className="flex min-h-screen bg-gray-50">
-      <Sidebar isConnected={true} handleLogout={() => {}} role="admin" />
+      <Sidebar isConnected={isConnected} handleLogout={handleLogout} role="admin" />
       <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-4 md:px-12 py-8">
-        <h2 className="text-2xl font-bold mb-4 text-indigo-700">Détail de la réclamation</h2>
-        <div className="bg-white rounded shadow p-6">
-          <div><b>Nom agent :</b> {reclamation.nom_agent}</div>
-          <div><b>Prénom agent :</b> {reclamation.prenom_agent}</div>
-          <div><b>CIN agent :</b> {reclamation.cin_agent}</div>
-          <div><b>Description :</b> {reclamation.description}</div>
-          <div><b>Date :</b> {reclamation.date_reclamation}</div>
-          <div><b>Site :</b> {reclamation.site_affectation}</div>
-          <div><b>Poste :</b> {reclamation.poste}</div>
-          <div><b>Créée par :</b> {reclamation.superviseur_nom} {reclamation.superviseur_prenom}</div>
-        </div>                    
-        <button
-          onClick={() => router.back()}
-          className="mt-6 bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700"
-        >
-          Retour
-        </button>
+        <div className="max-w-4xl mx-auto">
+          <div className="bg-white rounded-lg shadow-lg p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h2 className="text-3xl font-bold text-indigo-700">Détail de la réclamation</h2>
+              <button
+                onClick={() => router.back()}
+                className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
+              >
+                ← Retour
+              </button>
+            </div>
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+              <div className="space-y-4">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <label className="text-sm font-medium text-gray-600">Nom de l'agent</label>
+                  <p className="text-lg font-semibold">{reclamation.nom_agent}</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <label className="text-sm font-medium text-gray-600">Prénom de l'agent</label>
+                  <p className="text-lg font-semibold">{reclamation.prenom_agent}</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <label className="text-sm font-medium text-gray-600">CIN de l'agent</label>
+                  <p className="text-lg font-semibold">{reclamation.cin_agent}</p>
+                </div>
+              </div>
+              <div className="space-y-4">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <label className="text-sm font-medium text-gray-600">Date de réclamation</label>
+                  <p className="text-lg font-semibold">{reclamation.date_reclamation}</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <label className="text-sm font-medium text-gray-600">Site d'affectation</label>
+                  <p className="text-lg font-semibold">{reclamation.site_affectation}</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <label className="text-sm font-medium text-gray-600">Poste</label>
+                  <p className="text-lg font-semibold">{reclamation.poste}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div className="mb-8">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <label className="text-sm font-medium text-gray-600">Description</label>
+                <p className="text-lg font-semibold mt-2">{reclamation.description}</p>
+              </div>
+            </div>
+            
+            {reclamation.superviseur_nom && (
+              <div className="mb-8">
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <label className="text-sm font-medium text-gray-600">Créée par</label>
+                  <p className="text-lg font-semibold mt-2">
+                    {reclamation.superviseur_nom} {reclamation.superviseur_prenom}
+                  </p>
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
       </main>
     </div>
   );
