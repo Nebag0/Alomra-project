@@ -2,6 +2,7 @@ const express = require('express');
 const cookieParser = require('cookie-parser'); 
 const morgan = require('morgan'); // Pour le logging des requêtes
 const cors = require('./middleware/cors'); // Assurez-vous que le chemin est correct
+const initializeAdmin = require('./initAdmin');
 require("dotenv").config();
 
 
@@ -32,6 +33,15 @@ app.use('/admin', require('./routes/Users_routes'));
 app.use('/superviseur', require('./routes/Reclamation_routes'));
 
 // Lancer le serveur
-app.listen(5000, () => {
+app.listen(5000, async () => {
   console.log('Serveur démarré sur le port 5000');
+  
+  // Attendre un peu avant d'initialiser l'admin
+  setTimeout(async () => {
+    try {
+      await initializeAdmin();
+    } catch (error) {
+      console.error('Erreur lors de l\'initialisation de l\'admin:', error);
+    }
+  }, 5000); // Attendre 5 secondes
 });

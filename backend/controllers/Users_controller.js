@@ -1,5 +1,6 @@
 const User = require('../models/Users_models');
 const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
 const SECRET = process.env.JWT_SECRET || 'votre_secret_jwt'; // Mets une vraie valeur secrète en prod
 
 // Récupérer tous les utilisateurs
@@ -46,7 +47,11 @@ async function create_user(req, res) {
       return res.status(400).json({ error: "Le mot de passe doit contenir au moins 6 caractères." });
     }
 
-    const userId = await User.createUser({ nom, prenom, email, mot_de_passe, role, photo });
+    // Hasher le mot de passe avec bcrypt
+    const saltRounds = 10;
+    const hashedPassword = await bcrypt.hash(mot_de_passe, saltRounds);
+
+    const userId = await User.createUser({ nom, prenom, email, mot_de_passe: hashedPassword, role, photo });
     res.status(201).json({ message: "Utilisateur créé avec succès.", userId });
   } catch (err) {
     res.status(500).json({ error: err.message });
@@ -98,18 +103,24 @@ async function change_password(req, res) {
       return res.status(404).json({ error: "Utilisateur non trouvé." });
     }
 
-    // Vérifier l'ancien mot de passe
-    if (user.mot_de_passe !== oldPassword) {
+    // Vérifier l'ancien mot de passe avec bcrypt
+    const isOldPasswordValid = await bcrypt.compare(oldPassword, user.mot_de_passe);
+    if (!isOldPasswordValid) {
       return res.status(401).json({ error: "Ancien mot de passe incorrect." });
     }
 
     // Vérifier que le nouveau mot de passe est différent de l'ancien
-    if (oldPassword === newPassword) {
+    const isNewPasswordSame = await bcrypt.compare(newPassword, user.mot_de_passe);
+    if (isNewPasswordSame) {
       return res.status(400).json({ error: "Le nouveau mot de passe doit être différent de l'ancien." });
     }
 
+    // Hasher le nouveau mot de passe
+    const saltRounds = 10;
+    const hashedNewPassword = await bcrypt.hash(newPassword, saltRounds);
+
     // Mettre à jour le mot de passe
-    await User.updateUser(userId, { mot_de_passe: newPassword });
+    await User.updateUser(userId, { mot_de_passe: hashedNewPassword });
     res.status(200).json({ message: "Mot de passe changé avec succès." });
   } catch (err) {
     console.error('Erreur lors du changement de mot de passe:', err);
@@ -134,9 +145,14 @@ async function delete_user_secure(req, res) {
       return res.status(403).json({ error: "Vous ne pouvez pas supprimer un compte administrateur." });
     }
 
-    // Vérifier le mot de passe de l'admin
+    // Vérifier le mot de passe de l'admin avec bcrypt
     const adminUser = await User.getUserById(req.user.id);
-    if (!adminUser || adminUser.mot_de_passe !== adminPassword) {
+    if (!adminUser) {
+      return res.status(404).json({ error: "Administrateur non trouvé." });
+    }
+
+    const isAdminPasswordValid = await bcrypt.compare(adminPassword, adminUser.mot_de_passe);
+    if (!isAdminPasswordValid) {
       return res.status(401).json({ error: "Mot de passe administrateur incorrect." });
     }
 
@@ -171,10 +187,13 @@ async function login(req, res) {
     if (!user) {
       return res.status(401).json({ message: "Utilisateur non trouvé." });
     }
-    // Vérification du mot de passe (ici en clair, à adapter si hashé)
-    if (user.mot_de_passe !== mot_de_passe) {
+    
+    // Vérification du mot de passe avec bcrypt
+    const isPasswordValid = await bcrypt.compare(mot_de_passe, user.mot_de_passe);
+    if (!isPasswordValid) {
       return res.status(401).json({ message: "Mot de passe invalide." });
     }
+    
     // Générer le token
     const token = jwt.sign(
       { id: user.id_user, email: user.email, role: user.role },
@@ -214,7 +233,13 @@ async function verify_admin_password(req, res) {
 
   try {
     const adminUser = await User.getUserById(req.user.id);
-    if (!adminUser || adminUser.mot_de_passe !== adminPassword) {
+    if (!adminUser) {
+      return res.status(404).json({ error: "Administrateur non trouvé." });
+    }
+
+    // Vérifier le mot de passe avec bcrypt
+    const isPasswordValid = await bcrypt.compare(adminPassword, adminUser.mot_de_passe);
+    if (!isPasswordValid) {
       return res.status(401).json({ error: "Mot de passe administrateur incorrect." });
     }
     
