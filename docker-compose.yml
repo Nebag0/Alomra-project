@@ -75,7 +75,7 @@ services:
 volumes:
   mysql_data:
     driver: local
-
+ 
 networks:
   alomra_network:
     driver: bridge

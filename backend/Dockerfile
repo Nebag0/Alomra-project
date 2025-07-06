@@ -12,4 +12,4 @@ RUN chown -R nextjs:nodejs /app
 USER nextjs
 
 EXPOSE 5000
-CMD ["node", "server.js"]
+CMD ["node", "server.js"] 
