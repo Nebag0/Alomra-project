@@ -1,17 +1,17 @@
 import { useState } from "react";
 import Link from "next/link";
-import { ChartLine, ClipboardCheck, UserCog, LogOut } from "lucide-react";
+import { ChartLine, BookText,ClipboardCheck, UserRoundCog, LogOut, CircleUserRound } from "lucide-react";
 
 const LINKS = {
   admin: [
     { href: "/admin/dashboard", icon: <ChartLine className="h-8 w-8 text-white-700" />, label: "Dashboard" },
     { href: "/admin/reclamations", icon: <ClipboardCheck className="h-8 w-8 text-white-700" />, label: "Réclamations" },
-    { href: "/admin/users", icon: <UserCog className="h-8 w-8 text-white-700" />, label: "Utilisateurs" },
-    { href: "/profil", icon: <UserCog className="h-8 w-8 text-white-700" />, label: "Profil" },
+    { href: "/admin/users", icon: <UserRoundCog className="h-8 w-8 text-white-700" />, label: "Utilisateurs" },
+    { href: "/profil", icon: <CircleUserRound className="h-8 w-8 text-white-700" />, label: "Profil" },
   ],
   superviseur: [
-    { href: "/superviseur", icon: <ChartLine className="h-8 w-8 text-white-700" />, label: "Mes réclamations" },
-    { href: "/profil", icon: <UserCog className="h-8 w-8 text-white-700" />, label: "Profil" },
+    { href: "/superviseur", icon: <BookText className="h-8 w-8 text-white-700" />, label: "Mes réclamations" },
+    { href: "/profil", icon: <CircleUserRound className="h-8 w-8 text-white-700" />, label: "Profil" },
     // Ajoute d'autres liens superviseur ici
   ]
 };
