@@ -116,7 +116,7 @@ export default function AdminReclamations() {
                 ))}
               </tbody>
             </table>
-          )}
+          )} 
         </div>
         {/* Pagination */}
         <div className="flex justify-center items-center gap-2 mt-4">
