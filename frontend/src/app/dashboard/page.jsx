@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import dayjs from 'dayjs';
+import URL from '../../api';
 
 export default function Dashboard() {
   const [data, setData] = useState([]);
@@ -7,7 +8,7 @@ export default function Dashboard() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    fetch('http://localhost:5000/reclamations/stats/mois')
+    fetch(`${URL}/reclamations/stats/mois`)
       .then(res => res.json())
       .then(res => {
         setData(res);

@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import SkeletonTable from "@/components/SkeletonTable";
 import { FormModal } from "@/components/Modal";
 import dayjs from 'dayjs';
+import URL from '../../../api';
 
 export default function AdminReclamations() {
   const [reclamations, setReclamations] = useState([]);
@@ -37,7 +38,7 @@ export default function AdminReclamations() {
       return;
     }
     setLoading(true);
-    fetch(`http://localhost:5000/admin/reclamations?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
+    fetch(`${URL}/admin/reclamations?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -57,7 +58,7 @@ export default function AdminReclamations() {
         setLoading(false);
       });
     // Récupérer la liste des motifs
-    fetch("http://localhost:5000/admin/motifs", {
+    fetch(`${URL}/admin/motifs`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     })
       .then(res => res.json())

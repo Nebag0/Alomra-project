@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import { FormModal } from "@/components/Modal";
 import DropdownMultiSelect from "@/components/DropdownMultiSelect";
 import dayjs from 'dayjs';
+import URL from '../../api';
 
 export default function UserHome() {
   const [reclamations, setReclamations] = useState([]);
@@ -45,7 +46,7 @@ export default function UserHome() {
       return;
     }
     setLoading(true);
-    fetch(`http://localhost:5000/superviseur/reclamations?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
+    fetch(`${URL}/superviseur/reclamations?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     })
       .then(res => res.json())
@@ -63,7 +64,7 @@ export default function UserHome() {
         setLoading(false);
       });
     // Récupérer la liste des motifs
-    fetch("http://localhost:5000/superviseur/motifs", {
+    fetch(`${URL}/superviseur/motifs`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     })
       .then(res => res.json())
@@ -87,7 +88,7 @@ export default function UserHome() {
     const payload = JSON.parse(atob(token.split('.')[1]));
     const body = { ...form, created_by: payload.id, motifIds: form.motifIds.length ? form.motifIds : [1] };
     try {
-      const res = await fetch("http://localhost:5000/superviseur/reclamations", {
+      const res = await fetch(`${URL}/superviseur/reclamations`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

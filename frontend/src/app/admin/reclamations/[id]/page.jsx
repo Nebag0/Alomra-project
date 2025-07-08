@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import dayjs from 'dayjs';
+import URL from '../../../../api';
 
 export default function ReclamationDetail() {
   const router = useRouter();
@@ -28,7 +29,7 @@ export default function ReclamationDetail() {
       return;
     }
 
-    fetch(`http://localhost:5000/admin/reclamations/${id}`, {
+    fetch(`${URL}/admin/reclamations/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())

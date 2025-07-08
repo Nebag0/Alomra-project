@@ -218,6 +218,14 @@ async function getReclamationsByUserWithSearchAndPagination({ userId, search = '
     return { reclamations: rows, total: countRows[0].total };
 }
 
+// Récupérer les noms des motifs à partir d'une liste d'IDs
+async function getMotifNamesByIds(ids) {
+    if (!ids || !ids.length) return [];
+    const placeholders = ids.map(() => '?').join(',');
+    const [rows] = await db.execute(`SELECT nom FROM motifs WHERE id IN (${placeholders})`, ids);
+    return rows.map(row => row.nom);
+}
+
 module.exports = {
     createReclamation,
     getAllReclamations,
@@ -229,6 +237,7 @@ module.exports = {
     getReclamationById,
     get_all_reclamations, // pour admin
     getAllReclamationsWithSearchAndPagination,
-    getReclamationsEssentiellesWithSearchAndPagination
+    getReclamationsEssentiellesWithSearchAndPagination,
+    getMotifNamesByIds
 };
 

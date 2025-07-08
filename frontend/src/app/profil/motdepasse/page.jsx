@@ -2,6 +2,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
+import URL from '../../../api';
 
 export default function ChangePasswordPage() {
   const [oldPassword, setOldPassword] = useState("");
@@ -55,7 +56,7 @@ export default function ChangePasswordPage() {
 
     try {
       const token = localStorage.getItem("token");
-      const res = await fetch("http://localhost:5000/profil/motdepasse", {
+      const res = await fetch(`${URL}/profil/motdepasse`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

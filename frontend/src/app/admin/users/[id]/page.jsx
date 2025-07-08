@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Modal, ConfirmModal, FormModal } from "../../../../components/Modal";
 import Sidebar from "@/components/Sidebar";
+import URL from '../../../../api';
 
 export default function UserDetail() {
   const [isConnected, setIsConnected] = useState(false);
@@ -42,7 +43,7 @@ export default function UserDetail() {
       return;
     }
 
-    fetch(`http://localhost:5000/admin/getuser/${id}`, {
+    fetch(`${URL}/admin/getuser/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -67,7 +68,7 @@ export default function UserDetail() {
     setError("");
     setSuccess("");
     const token = localStorage.getItem("token");
-    const res = await fetch(`http://localhost:5000/admin/updateuser/${id}`, {
+    const res = await fetch(`${URL}/admin/updateuser/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -101,7 +102,7 @@ export default function UserDetail() {
     setError("");
     setSuccess("");
     const token = localStorage.getItem("token");
-    const res = await fetch(`http://localhost:5000/admin/deleteUserSecure/${id}`, {
+    const res = await fetch(`${URL}/admin/deleteUserSecure/${id}`, {
       method: "DELETE",
       headers: {
         "Content-Type": "application/json",
@@ -148,7 +149,7 @@ export default function UserDetail() {
     
     // Vérifier le mot de passe avant d'ouvrir le modal de modification
     try {
-      const res = await fetch(`http://localhost:5000/admin/verifyPassword`, {
+      const res = await fetch(`${URL}/admin/verifyPassword`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

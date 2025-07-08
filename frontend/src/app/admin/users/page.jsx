@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import { FormModal } from "@/components/Modal";
 import SkeletonTable from "@/components/SkeletonTable";
+import URL from '../../../api';
 
 export default function AdminHome() {
   const [users, setUsers] = useState([]);
@@ -39,7 +40,7 @@ export default function AdminHome() {
       return;
     }
     setLoading(true);
-    fetch(`http://localhost:5000/admin/getusers?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
+    fetch(`${URL}/admin/getusers?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
       headers: {
         Authorization: `Bearer ${token}`
       }
@@ -74,7 +75,7 @@ export default function AdminHome() {
       telephone: form.telephone || '',
       adresse: form.adresse || null
     };
-    const res = await fetch("http://localhost:5000/admin/createUser", {
+    const res = await fetch(`${URL}/admin/createUser`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

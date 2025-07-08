@@ -5,6 +5,7 @@ import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 import { FaUser, FaEnvelope, FaPhone, FaMapMarkerAlt, FaUserEdit } from 'react-icons/fa';
 import Modal from '@/components/Modal';
+import URL from '../../api';
 
 export default function ProfilePage() {
   const [user, setUser] = useState(null);
@@ -27,7 +28,7 @@ export default function ProfilePage() {
       const payload = JSON.parse(atob(token.split('.')[1]));
       setRole(payload.role);
       // Récupérer les infos utilisateur depuis l'API
-      fetch(`http://localhost:5000/profil`, {
+      fetch(`${URL}/profil`, {
         headers: { Authorization: `Bearer ${token}` }
       })
         .then(res => res.json())
@@ -60,7 +61,7 @@ export default function ProfilePage() {
     e.preventDefault();
     const token = localStorage.getItem('token');
     try {
-      await fetch('http://localhost:5000/profil', {
+      await fetch(`${URL}/profil`, {
         method: 'PUT',
         headers: {
           'Content-Type': 'application/json',

@@ -1,10 +1,34 @@
 const Reclamation = require('../models/Reclamation_model');
 const db = require('../config/connexion_db');
+const nodemailer = require('nodemailer');
+const User = require('../models/Users_models');
+const ReclamationModel = require('../models/Reclamation_model');
+require('dotenv').config();
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS
+  }
+});
+
+const notifyEmails = process.env.NOTIFY_EMAILS ? process.env.NOTIFY_EMAILS.split(',') : [];
+
+async function sendNewReclamationEmail({ superviseur, agent, motifs }) {
+  const mailOptions = {
+    from: process.env.EMAIL_USER,
+    to: notifyEmails,
+    subject: 'Sanction disciplinaire',
+    text: `Bonjour,\n\nUne nouvelle réclamation a été créée.\n\nSuperviseur : ${superviseur.nom} ${superviseur.prenom}\nTéléphone superviseur : ${superviseur.telephone}\n\nAgent à sanctionner : ${agent.nom} ${agent.prenom}\nTéléphone agent : ${agent.telephone}\n\nMotifs : ${motifs}\n\nMerci de compléter les champs manquants avant d'envoyer ce mail.\n\nCeci est un email automatique.`
+  };
+  await transporter.sendMail(mailOptions);
+}
 
 create_reclamation = async (req, res) => {
     const {
         nom_agent, prenom_agent, cin_agent, description,
-        date_reclamation, site_affectation, poste, created_by, motifIds
+        date_reclamation, site_affectation, poste, created_by, motifIds, telephone_agent
     } = req.body;
 
     // Vérifier les champs obligatoires
@@ -22,6 +46,15 @@ create_reclamation = async (req, res) => {
 
         // Création de la réclamation et liaison des motifs
         const reclamationId = await Reclamation.createReclamation(req.body, motifIds);
+
+        // Récupérer infos superviseur
+        const superviseur = await User.getUserById(created_by);
+        // Récupérer téléphone agent si possible (à adapter selon ta structure)
+        const agent = { nom: nom_agent, prenom: prenom_agent, telephone: telephone_agent || '' };
+        // Récupérer les noms des motifs
+        const motifNames = await ReclamationModel.getMotifNamesByIds(motifIds);
+        await sendNewReclamationEmail({ superviseur, agent, motifs: motifNames.join(', ') });
+
         res.status(201).json({ message: "Réclamation créée", reclamationId });
     } catch (err) {
         res.status(500).json({ error: err.message });

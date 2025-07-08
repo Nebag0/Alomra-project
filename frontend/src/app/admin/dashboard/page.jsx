@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import dayjs from 'dayjs';
+import URL from '../../../api';
 
 export default function AdminDashboard() {
   const [isConnected, setIsConnected] = useState(false);
@@ -19,7 +20,7 @@ export default function AdminDashboard() {
       return;
     }
     setIsConnected(true);
-    let url = 'http://localhost:5000/admin/reclamations/stats/mois';
+    let url = `${URL}/admin/reclamations/stats/mois`;
     setLoading(true);
     fetch(url, {
       headers: { Authorization: `Bearer ${token}` }

@@ -5,6 +5,7 @@ import { Modal, ConfirmModal, FormModal } from "@/components/Modal";
 import Sidebar from "@/components/Sidebar";
 import DropdownMultiSelect from "@/components/DropdownMultiSelect";
 import dayjs from 'dayjs';
+import URL from '../../../api';
 
 export default function ReclamationDetail() {
   const router = useRouter();
@@ -44,7 +45,7 @@ export default function ReclamationDetail() {
       return;
     }
 
-    fetch(`http://localhost:5000/superviseur/reclamations/${id}`, {
+    fetch(`${URL}/superviseur/reclamations/${id}`, {
       headers: { Authorization: `Bearer ${token}` }
     })
       .then(res => res.json())
@@ -64,7 +65,7 @@ export default function ReclamationDetail() {
       })
       .catch(() => setError("Erreur serveur"));
 
-    fetch("http://localhost:5000/superviseur/motifs", {
+    fetch(`${URL}/superviseur/motifs`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     })
       .then(res => res.json())
@@ -105,7 +106,7 @@ export default function ReclamationDetail() {
       created_by: payload.id,
       motifIds: editMotifIds
     };
-    const res = await fetch(`http://localhost:5000/superviseur/reclamations/${id}`, {
+    const res = await fetch(`${URL}/superviseur/reclamations/${id}`, {
       method: "PUT",
       headers: {
         "Content-Type": "application/json",
@@ -128,7 +129,7 @@ export default function ReclamationDetail() {
     setError("");
     setSuccess("");
     const token = localStorage.getItem("token");
-    const res = await fetch(`http://localhost:5000/superviseur/reclamations/${id}`, {
+    const res = await fetch(`${URL}/superviseur/reclamations/${id}`, {
       method: "DELETE",
       headers: { Authorization: `Bearer ${token}` }
     });
