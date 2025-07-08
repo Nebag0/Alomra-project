@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import SkeletonTable from "@/components/SkeletonTable";
 import { FormModal } from "@/components/Modal";
+import dayjs from 'dayjs';
 
 export default function AdminReclamations() {
   const [reclamations, setReclamations] = useState([]);
@@ -98,7 +99,7 @@ export default function AdminReclamations() {
               <thead className="bg-indigo-700">
                 <tr>
                   <th className="py-3 px-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Agent</th>
-                  <th className="py-3 px-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Motif(s)</th>
+                  <th className="py-3 px-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Date</th>
                   <th className="py-3 px-4 text-left text-xs font-semibold text-white uppercase tracking-wider">Créée par</th>
                 </tr>
               </thead>
@@ -110,7 +111,7 @@ export default function AdminReclamations() {
                     onClick={() => router.push(`/admin/reclamations/${r.id}`)}
                   >
                     <td className="py-2 px-4">{r.nom_agent} {r.prenom_agent}</td>
-                    <td className="py-2 px-4">{r.motifs}</td>
+                    <td className="py-2 px-4">{dayjs(r.date_reclamation).format('DD/MM/YYYY')}</td>
                     <td className="py-2 px-4">{r.superviseur_nom} {r.superviseur_prenom}</td>
                   </tr>
                 ))}

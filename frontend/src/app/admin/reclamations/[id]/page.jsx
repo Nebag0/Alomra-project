@@ -2,6 +2,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
+import dayjs from 'dayjs';
 
 export default function ReclamationDetail() {
   const router = useRouter();
@@ -96,7 +97,7 @@ export default function ReclamationDetail() {
               <div className="space-y-4">
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <label className="text-sm font-medium text-gray-600">Date de réclamation</label>
-                  <p className="text-lg font-semibold">{reclamation.date_reclamation}</p>
+                  <p className="text-lg font-semibold">{dayjs(reclamation.date_reclamation).format('DD/MM/YYYY')}</p>
                 </div>
                 <div className="bg-gray-50 p-4 rounded-lg">
                   <label className="text-sm font-medium text-gray-600">Site d'affectation</label>

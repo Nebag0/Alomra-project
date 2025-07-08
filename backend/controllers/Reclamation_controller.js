@@ -32,8 +32,12 @@ create_reclamation = async (req, res) => {
 get_reclamations_by_user = async (req, res) => {
     try {
         const userId = req.user.id;
-        const rows = await Reclamation.getReclamationsByUser(userId);
-        res.json(rows);
+        const search = req.query.search || '';
+        const page = parseInt(req.query.page, 10) || 1;
+        const limit = parseInt(req.query.limit, 10) || 10;
+        const offset = (page - 1) * limit;
+        const { reclamations, total } = await Reclamation.getReclamationsByUserWithSearchAndPagination({ userId, search, limit, offset });
+        res.json({ reclamations, total, page, limit });
     } catch (err) {
         res.status(500).json({ error: err.message });
     }
@@ -131,6 +135,44 @@ get_motifs = async (req, res) => {
   }
 };
 
+// Statistiques : nombre de réclamations par mois
+get_reclamations_stats_by_month = async (req, res) => {
+  try {
+    const [rows] = await db.execute(`
+      SELECT DATE_FORMAT(date_reclamation, '%Y-%m') as mois, COUNT(*) as count
+      FROM reclamations
+      GROUP BY mois
+      ORDER BY mois
+    `);
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+// Statistiques : nombre de réclamations par superviseur
+get_reclamations_stats_by_superviseur = async (req, res) => {
+  try {
+    let where = '';
+    let params = [];
+    if (req.query.superviseur) {
+      where = 'WHERE r.created_by = ?';
+      params.push(req.query.superviseur);
+    }
+    const [rows] = await db.execute(`
+      SELECT u.nom, u.prenom, COUNT(*) as count
+      FROM reclamations r
+      LEFT JOIN users u ON r.created_by = u.id_user
+      ${where}
+      GROUP BY r.created_by
+      ORDER BY count DESC
+    `, params);
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
     create_reclamation,
     get_reclamations_by_user,
@@ -139,5 +181,7 @@ module.exports = {
     delete_reclamation,
     get_reclamation_by_id,
     get_reclamations_essentielles,
-    get_motifs
+    get_motifs,
+    get_reclamations_stats_by_month,
+    get_reclamations_stats_by_superviseur
 };

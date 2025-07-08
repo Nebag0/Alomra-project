@@ -54,11 +54,17 @@ async function updateUser(id, data) {
         return;
     }
     // Sinon, update complet
+    // On récupère le rôle existant si non fourni
+    let roleToUse = data.role;
+    if (typeof roleToUse === 'undefined' || roleToUse === null || roleToUse === '') {
+        const [rows] = await db.execute('SELECT role FROM users WHERE id_user=?', [id]);
+        roleToUse = rows[0]?.role || 'superviseur';
+    }
     const updateData = {
         nom: data.nom || null,
         prenom: data.prenom || null,
         email: data.email || null,
-        role: data.role || 'superviseur',
+        role: roleToUse,
         photo: data.photo || null,
         telephone: data.telephone,
         adresse: data.adresse || null
@@ -115,7 +121,7 @@ async function deleteUserWithReclamations(id) {
 
 // Récupérer un utilisateur par ID (méthode supplémentaire)
 async function get_user_by_id_db(id) {
-  const [rows] = await db.query("SELECT id_user, nom, prenom, email, role FROM users WHERE id_user = ?", [id]);
+  const [rows] = await db.query("SELECT id_user, nom, prenom, email, role, telephone, adresse FROM users WHERE id_user = ?", [id]);
   return rows[0];
 }
 
@@ -135,6 +141,11 @@ async function getUsersWithSearchAndPagination({ search = '', limit = 10, offset
     return { users: rows, total: countRows[0].total };
 }
 
+// Récupérer tous les superviseurs (id_user, nom, prenom)
+async function getSuperviseurs() {
+  return await db.execute('SELECT id_user, nom, prenom FROM users WHERE role = "superviseur"');
+}
+
 module.exports = {
     getUsers,
     getUserById,
@@ -145,5 +156,6 @@ module.exports = {
     deleteUser,
     deleteUserWithReclamations,
     get_user_by_id_db,
-    getUsersWithSearchAndPagination
+    getUsersWithSearchAndPagination,
+    getSuperviseurs
 };

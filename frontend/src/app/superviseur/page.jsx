@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import { FormModal } from "@/components/Modal";
 import DropdownMultiSelect from "@/components/DropdownMultiSelect";
+import dayjs from 'dayjs';
 
 export default function UserHome() {
   const [reclamations, setReclamations] = useState([]);
@@ -44,7 +45,7 @@ export default function UserHome() {
       return;
     }
     setLoading(true);
-    fetch(`http://localhost:5000/superviseur/essentielles?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
+    fetch(`http://localhost:5000/superviseur/reclamations?search=${encodeURIComponent(search)}&page=${page}&limit=${limit}`, {
       headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
     })
       .then(res => res.json())

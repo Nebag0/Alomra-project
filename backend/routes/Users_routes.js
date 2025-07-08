@@ -23,4 +23,6 @@ router.post('/verifyPassword', authenticateToken, authorizeRoles('admin'), contr
 router.get('/reclamations', authenticateToken, authorizeRoles('admin'), reclamationController.get_all_reclamations);
 router.get('/reclamations/:id', authenticateToken, authorizeRoles('admin'), reclamationController.get_reclamation_by_id);
 
+router.get('/superviseurs', authenticateToken, authorizeRoles('admin'), controller.get_superviseurs);
+
 module.exports = router;

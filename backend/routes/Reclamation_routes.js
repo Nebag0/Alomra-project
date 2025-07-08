@@ -12,5 +12,7 @@ router.delete('/reclamations/:id', authenticateToken, authorizeRoles('superviseu
 router.get('/reclamations/:id', authenticateToken, authorizeRoles('superviseur'), controller.get_reclamation_by_id);
 router.get('/essentielles', authenticateToken, authorizeRoles('admin', 'superviseur'), get_reclamations_essentielles);
 router.get('/motifs', authenticateToken, authorizeRoles('admin', 'superviseur'), get_motifs);
+router.get('/reclamations/stats/mois', authenticateToken, authorizeRoles('admin'), controller.get_reclamations_stats_by_month);
+router.get('/reclamations/stats/superviseur', authenticateToken, authorizeRoles('admin'), controller.get_reclamations_stats_by_superviseur);
 
 module.exports = router;

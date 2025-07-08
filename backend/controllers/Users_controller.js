@@ -256,6 +256,34 @@ async function verify_admin_password(req, res) {
   }
 }
 
+// Modifier le profil de l'utilisateur connecté
+async function update_my_profile(req, res) {
+  try {
+    const id = req.user.id || req.user.id_user || req.user.ID || req.user.ID_USER;
+    if (!id) {
+      return res.status(400).json({ error: "Impossible de déterminer l'ID utilisateur depuis le token." });
+    }
+    const { nom, prenom, email, telephone, adresse } = req.body;
+    if (!nom || !prenom || !email) {
+      return res.status(400).json({ error: "Nom, prénom et email sont obligatoires." });
+    }
+    await User.updateUser(id, { nom, prenom, email, telephone, adresse });
+    res.status(200).json({ message: "Profil modifié avec succès." });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
+// Retourner la liste des superviseurs (id_user, nom, prenom)
+async function get_superviseurs(req, res) {
+  try {
+    const [rows] = await User.getSuperviseurs();
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+}
+
 module.exports = {
   get_users,
   get_user_by_id,
@@ -266,5 +294,7 @@ module.exports = {
   get_my_profile,
   login,
   change_password,
-  verify_admin_password
+  verify_admin_password,
+  update_my_profile,
+  get_superviseurs
 };

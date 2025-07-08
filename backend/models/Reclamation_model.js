@@ -193,10 +193,36 @@ async function getReclamationsEssentiellesWithSearchAndPagination({ search = '',
     return { reclamations: rows, total: countRows[0].total };
 }
 
+// Recherche + pagination pour les réclamations d'un superviseur
+async function getReclamationsByUserWithSearchAndPagination({ userId, search = '', limit = 10, offset = 0 }) {
+    limit = Number(limit) || 10;
+    offset = Number(offset) || 0;
+    const searchQuery = `%${search}%`;
+    const [rows] = await db.execute(
+        `SELECT r.*, GROUP_CONCAT(m.nom) AS motifs
+        FROM reclamations r
+        LEFT JOIN reclamation_motif rm ON r.id = rm.reclamation_id
+        LEFT JOIN motifs m ON rm.motif_id = m.id
+        WHERE r.created_by = ? AND (r.nom_agent LIKE ? OR r.prenom_agent LIKE ?)
+        GROUP BY r.id
+        ORDER BY r.id DESC
+        LIMIT ${limit} OFFSET ${offset}`,
+        [userId, searchQuery, searchQuery]
+    );
+    const [countRows] = await db.execute(
+        `SELECT COUNT(*) as total
+        FROM reclamations r
+        WHERE r.created_by = ? AND (r.nom_agent LIKE ? OR r.prenom_agent LIKE ?)`,
+        [userId, searchQuery, searchQuery]
+    );
+    return { reclamations: rows, total: countRows[0].total };
+}
+
 module.exports = {
     createReclamation,
     getAllReclamations,
     getReclamationsByUser,
+    getReclamationsByUserWithSearchAndPagination,
     existsReclamation,
     updateReclamation,
     deleteReclamation,

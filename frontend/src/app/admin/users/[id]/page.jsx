@@ -53,7 +53,9 @@ export default function UserDetail() {
             nom: data.nom || "",
             prenom: data.prenom || "",
             email: data.email || "",
-            role: data.role || ""
+            role: data.role || "",
+            telephone: data.telephone || "",
+            adresse: data.adresse || ""
           });
         } else setError("Utilisateur non trouvé");
       })
