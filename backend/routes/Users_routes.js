@@ -12,7 +12,7 @@ router.post('/createUser', controller.create_user);
 router.post('/login', controller.login);
 
 // Routes admin uniquement
-router.get('/getUsers', authenticateToken, authorizeRoles('admin'), controller.get_users);
+router.get('/getUsers', authenticateToken, authorizeRoles('admin', 'superviseur'), controller.get_users);
 router.get('/getUser/:id', authenticateToken, authorizeRoles('admin'), controller.get_user_by_id);
 router.put('/updateUser/:id', authenticateToken, authorizeRoles('admin'), controller.update_user);
 router.delete('/deleteUser/:id', authenticateToken, authorizeRoles('admin'), controller.delete_user);

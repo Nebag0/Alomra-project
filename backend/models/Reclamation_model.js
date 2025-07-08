@@ -92,8 +92,8 @@ async function updateReclamation(id, data) {
             id
         ]
     );
-    // Pour les motifs, il faut d'abord supprimer les anciens puis insérer les nouveaux
-    if (Array.isArray(data.motifIds)) {
+    // Ne mettre à jour les motifs que si motifIds est explicitement envoyé
+    if (Array.isArray(data.motifIds) && data.motifIds.length > 0) {
         await db.execute('DELETE FROM reclamation_motif WHERE reclamation_id=?', [id]);
         for (const motifId of data.motifIds) {
             await db.execute(
@@ -126,15 +126,71 @@ async function deleteReclamation(id) {
 
 async function getReclamationById(id) {
     const [rows] = await db.query(`
-      SELECT r.*, u.nom AS superviseur_nom, u.prenom AS superviseur_prenom
+      SELECT r.*, u.nom AS superviseur_nom, u.prenom AS superviseur_prenom, GROUP_CONCAT(m.nom) AS motifs
       FROM reclamations r
       LEFT JOIN users u ON r.created_by = u.id_user
+      LEFT JOIN reclamation_motif rm ON r.id = rm.reclamation_id
+      LEFT JOIN motifs m ON rm.motif_id = m.id
       WHERE r.id = ?
+      GROUP BY r.id
       LIMIT 1
     `, [id]);
-    // if (rows.length === 0) return res.status(404).json({ error: "Réclamation non trouvée" });
-    // res.json(rows[0]);
     return rows[0];
+}
+
+// Récupérer toutes les réclamations avec recherche et pagination
+async function getAllReclamationsWithSearchAndPagination({ search = '', limit = 10, offset = 0 }) {
+    limit = Number(limit) || 10;
+    offset = Number(offset) || 0;
+    const searchQuery = `%${search}%`;
+    const [rows] = await db.execute(
+        `SELECT r.*, u.nom AS superviseur_nom, u.prenom AS superviseur_prenom
+        FROM reclamations r
+        LEFT JOIN users u ON r.created_by = u.id_user
+        WHERE r.nom_agent LIKE ? OR r.prenom_agent LIKE ?
+        ORDER BY r.id DESC
+        LIMIT ${limit} OFFSET ${offset}`,
+        [searchQuery, searchQuery]
+    );
+    const [countRows] = await db.execute(
+        `SELECT COUNT(*) as total
+        FROM reclamations r
+        WHERE r.nom_agent LIKE ? OR r.prenom_agent LIKE ?`,
+        [searchQuery, searchQuery]
+    );
+    return { reclamations: rows, total: countRows[0].total };
+}
+
+// Récupérer les réclamations essentielles (nom_agent, motif, créé par) avec recherche et pagination
+async function getReclamationsEssentiellesWithSearchAndPagination({ search = '', limit = 10, offset = 0, userId = null }) {
+    limit = Number(limit) || 10;
+    offset = Number(offset) || 0;
+    const searchQuery = `%${search}%`;
+    let where = 'WHERE r.nom_agent LIKE ? OR r.prenom_agent LIKE ?';
+    let params = [searchQuery, searchQuery];
+    if (userId) {
+        where += ' AND r.created_by = ?';
+        params.push(userId);
+    }
+    const [rows] = await db.execute(
+        `SELECT r.id, r.nom_agent, r.prenom_agent, r.site_affectation, COALESCE(GROUP_CONCAT(m.nom), '') AS motifs, u.nom AS superviseur_nom, u.prenom AS superviseur_prenom
+        FROM reclamations r
+        LEFT JOIN reclamation_motif rm ON r.id = rm.reclamation_id
+        LEFT JOIN motifs m ON rm.motif_id = m.id
+        LEFT JOIN users u ON r.created_by = u.id_user
+        ${where}
+        GROUP BY r.id
+        ORDER BY r.id DESC
+        LIMIT ${limit} OFFSET ${offset}`,
+        params
+    );
+    const [countRows] = await db.execute(
+        `SELECT COUNT(*) as total
+        FROM reclamations r
+        ${where}`,
+        params
+    );
+    return { reclamations: rows, total: countRows[0].total };
 }
 
 module.exports = {
@@ -145,6 +201,8 @@ module.exports = {
     updateReclamation,
     deleteReclamation,
     getReclamationById,
-    get_all_reclamations // pour admin
+    get_all_reclamations, // pour admin
+    getAllReclamationsWithSearchAndPagination,
+    getReclamationsEssentiellesWithSearchAndPagination
 };
 

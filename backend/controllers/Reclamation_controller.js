@@ -1,4 +1,5 @@
 const Reclamation = require('../models/Reclamation_model');
+const db = require('../config/connexion_db');
 
 create_reclamation = async (req, res) => {
     const {
@@ -41,8 +42,12 @@ get_reclamations_by_user = async (req, res) => {
 // Pour les admins : récupérer toutes les réclamations
 get_all_reclamations = async (req, res) => {
   try {
-    const rows = await Reclamation.get_all_reclamations();
-    res.json(rows);
+    const search = req.query.search || '';
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const offset = (page - 1) * limit;
+    const { reclamations, total } = await Reclamation.getAllReclamationsWithSearchAndPagination({ search, limit, offset });
+    res.json({ reclamations, total, page, limit });
   } catch (err) {
     console.log(err);
     res.status(500).json({ error: err.message });
@@ -101,11 +106,38 @@ const { id } = req.params;
   }
 };
 
+get_reclamations_essentielles = async (req, res) => {
+  try {
+    const search = req.query.search || '';
+    const page = parseInt(req.query.page, 10) || 1;
+    const limit = parseInt(req.query.limit, 10) || 10;
+    const offset = (page - 1) * limit;
+    // Si superviseur, filtrer par userId
+    const userId = req.user.role === 'superviseur' ? req.user.id : null;
+    const { reclamations, total } = await Reclamation.getReclamationsEssentiellesWithSearchAndPagination({ search, limit, offset, userId });
+    res.json({ reclamations, total, page, limit });
+  } catch (err) {
+    console.log(err);
+    res.status(500).json({ error: err.message });
+  }
+};
+
+get_motifs = async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT id, nom FROM motifs ORDER BY id');
+    res.json(rows);
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
 module.exports = {
     create_reclamation,
     get_reclamations_by_user,
     get_all_reclamations,
     update_reclamation,
     delete_reclamation,
-    get_reclamation_by_id
+    get_reclamation_by_id,
+    get_reclamations_essentielles,
+    get_motifs
 };

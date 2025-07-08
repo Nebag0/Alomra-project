@@ -27,15 +27,17 @@ async function existsUser(email) {
 // Créer un utilisateur
 async function createUser(data) {
     const [result] = await db.execute(
-        `INSERT INTO users (nom, prenom, email, mot_de_passe, role, photo)
-         VALUES (?, ?, ?, ?, ?, ?)`,
+        `INSERT INTO users (nom, prenom, email, mot_de_passe, role, photo, telephone, adresse)
+         VALUES (?, ?, ?, ?, ?, ?, ?, ?)`,
         [
             data.nom,
             data.prenom,
             data.email,
             data.mot_de_passe,
             data.role || 'superviseur',
-            data.photo || null
+            data.photo || null,
+            data.telephone,
+            data.adresse || null
         ]
     );
     return result.insertId;
@@ -57,16 +59,20 @@ async function updateUser(id, data) {
         prenom: data.prenom || null,
         email: data.email || null,
         role: data.role || 'superviseur',
-        photo: data.photo || null
+        photo: data.photo || null,
+        telephone: data.telephone,
+        adresse: data.adresse || null
     };
     await db.execute(
-        `UPDATE users SET nom=?, prenom=?, email=?, role=?, photo=? WHERE id_user=?`,
+        `UPDATE users SET nom=?, prenom=?, email=?, role=?, photo=?, telephone=?, adresse=? WHERE id_user=?`,
         [
             updateData.nom,
             updateData.prenom,
             updateData.email,
             updateData.role,
             updateData.photo,
+            updateData.telephone,
+            updateData.adresse,
             id
         ]
     );
@@ -113,6 +119,22 @@ async function get_user_by_id_db(id) {
   return rows[0];
 }
 
+// Récupérer les utilisateurs avec recherche et pagination
+async function getUsersWithSearchAndPagination({ search = '', limit = 10, offset = 0 }) {
+    limit = Number(limit) || 10;
+    offset = Number(offset) || 0;
+    const searchQuery = `%${search}%`;
+    const [rows] = await db.execute(
+        `SELECT id_user, nom, prenom, role FROM users WHERE nom LIKE ? OR prenom LIKE ? LIMIT ${limit} OFFSET ${offset}`,
+        [searchQuery, searchQuery]
+    );
+    const [countRows] = await db.execute(
+        'SELECT COUNT(*) as total FROM users WHERE nom LIKE ? OR prenom LIKE ?',
+        [searchQuery, searchQuery]
+    );
+    return { users: rows, total: countRows[0].total };
+}
+
 module.exports = {
     getUsers,
     getUserById,
@@ -122,5 +144,6 @@ module.exports = {
     updateUser,
     deleteUser,
     deleteUserWithReclamations,
-    get_user_by_id_db
+    get_user_by_id_db,
+    getUsersWithSearchAndPagination
 };

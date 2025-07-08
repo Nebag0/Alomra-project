@@ -220,6 +220,14 @@ export default function UserDetail() {
                   <label className="text-sm font-medium text-gray-600">Prénom</label>
                   <p className="text-lg font-semibold">{user.prenom}</p>
                 </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <label className="text-sm font-medium text-gray-600">Téléphone</label>
+                  <p className="text-lg font-semibold">{user.telephone}</p>
+                </div>
+                <div className="bg-gray-50 p-4 rounded-lg">
+                  <label className="text-sm font-medium text-gray-600">Adresse</label>
+                  <p className="text-lg font-semibold">{user.adresse}</p>
+                </div>
               </div>
               <div className="space-y-4">
                 <div className="bg-gray-50 p-4 rounded-lg">
@@ -317,6 +325,27 @@ export default function UserDetail() {
               required
             />
           </div>
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+          <input
+            type="text"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={editForm.telephone || ''}
+            onChange={e => setEditForm(f => ({ ...f, telephone: e.target.value }))}
+            placeholder="Téléphone"
+            required
+          />
+        </div>
+        <div>
+          <label className="block text-sm font-medium text-gray-700 mb-1">Adresse</label>
+          <input
+            type="text"
+            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            value={editForm.adresse || ''}
+            onChange={e => setEditForm(f => ({ ...f, adresse: e.target.value }))}
+            placeholder="Adresse"
+          />
         </div>
         <div>
           <label className="block text-sm font-medium text-gray-700 mb-1">Email</label>

@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useRouter, useParams } from "next/navigation";
 import { Modal, ConfirmModal, FormModal } from "@/components/Modal";
 import Sidebar from "@/components/Sidebar";
+import DropdownMultiSelect from "@/components/DropdownMultiSelect";
 
 export default function ReclamationDetail() {
   const router = useRouter();
@@ -23,6 +24,8 @@ export default function ReclamationDetail() {
     site_affectation: "",
     poste: ""
   });
+  const [motifs, setMotifs] = useState([]);
+  const [editMotifIds, setEditMotifIds] = useState([]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -59,15 +62,33 @@ export default function ReclamationDetail() {
         } else setError("Réclamation non trouvée");
       })
       .catch(() => setError("Erreur serveur"));
+
+    fetch("http://localhost:5000/superviseur/motifs", {
+      headers: { Authorization: `Bearer ${localStorage.getItem("token")}` }
+    })
+      .then(res => res.json())
+      .then(data => setMotifs(data))
+      .catch(() => setMotifs([]));
   }, [id, router]);
+
+  useEffect(() => {
+    if (reclamation && reclamation.motifs && editMotifIds.length === 0) {
+      const motifLabels = reclamation.motifs.split(',').map(m => m.trim());
+      const motifIds = motifs.filter(m => motifLabels.includes(m.nom)).map(m => m.id);
+      setEditMotifIds(motifIds);
+    }
+  }, [reclamation, motifs]);
 
   const handleEdit = async (e) => {
     e.preventDefault();
     setError("");
     setSuccess("");
+    if (editMotifIds.length === 0) {
+      setError("Veuillez sélectionner au moins un motif.");
+      return;
+    }
     const token = localStorage.getItem("token");
     const payload = JSON.parse(atob(token.split('.')[1]));
-    // Conversion de la date au format YYYY-MM-DD si besoin
     let dateSQL = reclamation.date_reclamation;
     if (dateSQL && dateSQL.includes('T')) {
       dateSQL = dateSQL.split('T')[0];
@@ -80,7 +101,8 @@ export default function ReclamationDetail() {
       date_reclamation: dateSQL || "",
       site_affectation: editForm.site_affectation || reclamation.site_affectation || "",
       poste: editForm.poste || reclamation.poste || "",
-      created_by: payload.id
+      created_by: payload.id,
+      motifIds: editMotifIds
     };
     const res = await fetch(`http://localhost:5000/superviseur/reclamations/${id}`, {
       method: "PUT",
@@ -207,6 +229,21 @@ export default function ReclamationDetail() {
               </div>
             </div>
             
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <label className="text-sm font-medium text-gray-600">Motif(s)</label>
+              <div className="flex flex-wrap gap-2 mt-2">
+                {reclamation.motifs && reclamation.motifs.split(',').map((motif, idx) => (
+                  <span key={idx} className="bg-indigo-100 text-indigo-800 px-2 py-1 rounded text-xs font-semibold">
+                    {motif.trim()}
+                  </span>
+                ))}
+              </div>
+            </div>
+            <div className="bg-gray-50 p-4 rounded-lg">
+              <label className="text-sm font-medium text-gray-600">Créée par</label>
+              <p className="text-lg font-semibold mt-2">{reclamation.superviseur_nom} {reclamation.superviseur_prenom}</p>
+            </div>
+            
             <div className="flex gap-4">
               <button
                 onClick={() => setShowEdit(true)}
@@ -301,6 +338,16 @@ export default function ReclamationDetail() {
               onChange={e => setEditForm(f => ({ ...f, poste: e.target.value }))}
               required
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">Motif(s)</label>
+            <DropdownMultiSelect
+              options={motifs}
+              value={editMotifIds}
+              onChange={setEditMotifIds}
+              placeholder="Choisir un ou plusieurs motifs..."
+            />
+            {editMotifIds.length === 0 && <div className="text-red-500 text-xs mt-1">Veuillez sélectionner au moins un motif.</div>}
           </div>
         </div>
         {error && <div className="text-red-600 mt-3 text-sm">{error}</div>}

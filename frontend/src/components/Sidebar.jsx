@@ -1,6 +1,6 @@
 import { useState } from "react";
 import Link from "next/link";
-import { ChartLine, BookText,ClipboardCheck, UserRoundCog, LogOut, CircleUserRound } from "lucide-react";
+import { ChartLine, BookText, ClipboardCheck, UserRoundCog, LogOut, CircleUserRound } from "lucide-react";
 
 const LINKS = {
   admin: [

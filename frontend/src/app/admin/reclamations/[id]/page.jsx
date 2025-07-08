@@ -116,6 +116,13 @@ export default function ReclamationDetail() {
               </div>
             </div>
             
+            <div className="mb-8">
+              <div className="bg-gray-50 p-4 rounded-lg">
+                <label className="text-sm font-medium text-gray-600">Motif(s)</label>
+                <p className="text-lg font-semibold mt-2">{reclamation.motifs}</p>
+              </div>
+            </div>
+            
             {reclamation.superviseur_nom && (
               <div className="mb-8">
                 <div className="bg-gray-50 p-4 rounded-lg">
