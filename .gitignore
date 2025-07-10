@@ -12,3 +12,6 @@ backend/config/
 #test & README
 test
 README
+
+#kubernetes
+k8s/
