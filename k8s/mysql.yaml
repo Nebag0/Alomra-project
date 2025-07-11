@@ -1,64 +1,10 @@
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: mysql-deployment
-  namespace: alomra
-  labels:
-    app: mysql
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: mysql
-  template:
-    metadata:
-      labels:
-        app: mysql
-    spec:
-      containers:
-      - name: mysql
-        image: mysql:8
-        ports:
-        - containerPort: 3306
-        env:
-        - name: MYSQL_ROOT_PASSWORD 
-          valueFrom:
-            secretKeyRef:
-              name: mysql-secret
-              key: mysql-root-password
-        - name: MYSQL_DATABASE
-          valueFrom:
-            secretKeyRef:
-              name: mysql-secret
-              key: mysql-database
-        - name: MYSQL_USER
-          valueFrom:
-            secretKeyRef:
-              name: mysql-secret
-              key: mysql-user
-        - name: MYSQL_PASSWORD
-          valueFrom:
-            secretKeyRef:
-              name: mysql-secret
-              key: mysql-password
-        volumeMounts:
-        - name: mysql-init
-          mountPath: /docker-entrypoint-initdb.d
-        - name: mysql-data
-          mountPath: /var/lib/mysql
-      volumes:
-      - name: mysql-init
-        configMap:
-          name: mysql-init-config
-      - name: mysql-data
-        persistentVolumeClaim:
-          claimName: mysql-pvc
----
+# k8s/mysql.yaml
+
+# --- Service MySQL ---
 apiVersion: v1
 kind: Service
 metadata:
   name: mysql-service
-  namespace: alomra
 spec:
   selector:
     app: mysql
@@ -66,72 +12,76 @@ spec:
     - protocol: TCP
       port: 3306
       targetPort: 3306
-  type: ClusterIP
+  clusterIP: None # Utilisation d'un Headless Service pour une découverte DNS directe des pods (utile si plusieurs réplicas)
+
 ---
+
+# --- PersistentVolumeClaim pour MySQL ---
+# Ce PVC demandera un volume persistant pour stocker les données de MySQL.
+# Minikube et Docker Desktop ont généralement un provisionneur de stockage par défaut
+# (souvent "standard") qui créera automatiquement un PersistentVolume (PV) pour ce PVC.
 apiVersion: v1
 kind: PersistentVolumeClaim
 metadata:
-  name: mysql-pvc
-  namespace: alomra
+  name: mysql-pvc # Le nom attendu par votre déploiement MySQL
+  labels:
+    app: mysql
 spec:
   accessModes:
-    - ReadWriteOnce
+    - ReadWriteOnce # Permet au volume d'être monté en lecture-écriture par un seul nœud
   resources:
     requests:
-      storage: 1Gi
+      storage: 1Gi # Demande 1 Gigaoctet de stockage. Adaptez si nécessaire.
+  # storageClassName: standard # Généralement optionnel si vous avez un StorageClass par défaut.
+                               # Décommentez si votre PVC ne se lie pas automatiquement.
+
 ---
-apiVersion: v1
-kind: ConfigMap
+
+# --- Déploiement MySQL ---
+apiVersion: apps/v1
+kind: Deployment
 metadata:
-  name: mysql-init-config
-  namespace: alomra
-data:
-  init.sql: |
-    -- Initialisation de la base de données Alomra
-    USE alomra;
-
-    -- Table des utilisateurs
-    CREATE TABLE IF NOT EXISTS users (
-        id_user INT PRIMARY KEY AUTO_INCREMENT,
-        nom VARCHAR(100) NOT NULL,
-        prenom VARCHAR(100) NOT NULL,
-        email VARCHAR(100) UNIQUE NOT NULL,
-        mot_de_passe VARCHAR(255) NOT NULL,
-        role ENUM('admin', 'superviseur') DEFAULT 'superviseur',
-        photo VARCHAR(255)
-    );
-
-    -- Table des motifs
-    CREATE TABLE IF NOT EXISTS motifs (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        nom VARCHAR(100) UNIQUE NOT NULL
-    );
-
-    -- Table des réclamations
-    CREATE TABLE IF NOT EXISTS reclamations (
-        id INT PRIMARY KEY AUTO_INCREMENT,
-        nom_agent VARCHAR(100) NOT NULL,
-        prenom_agent VARCHAR(100) NOT NULL,
-        cin_agent VARCHAR(20) NOT NULL,
-        description TEXT NOT NULL,
-        date_reclamation DATE NOT NULL,
-        site_affectation VARCHAR(100) NOT NULL,
-        poste VARCHAR(100) NOT NULL,
-        created_by INT NOT NULL,
-        FOREIGN KEY (created_by) REFERENCES users(id_user)
-    );
-
-    -- Table de liaison réclamation-motif
-    CREATE TABLE IF NOT EXISTS reclamation_motif (
-        reclamation_id INT NOT NULL,
-        motif_id INT NOT NULL,
-        PRIMARY KEY (reclamation_id, motif_id),
-        FOREIGN KEY (reclamation_id) REFERENCES reclamations(id),
-        FOREIGN KEY (motif_id) REFERENCES motifs(id)
-    );
-
-    -- Insertion de l'utilisateur admin par défaut
-    -- Email: admin@admin.com, Mot de passe: adminadmin (hashé avec bcrypt)
-    INSERT INTO users (nom, prenom, email, mot_de_passe, role) VALUES 
-    ('Admin', 'System', 'admin@admin.com', '$2b$10$sCrPGXow.pPs5snj8H5yFeCMSkcvz3psjGq7tfOuYK8BQB8Y2pJbS', 'admin')
-    ON DUPLICATE KEY UPDATE mot_de_passe = VALUES(mot_de_passe); 
+  name: mysql-deployment
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mysql
+  strategy:
+    type: Recreate # Utilise la stratégie Recreate pour les mises à jour afin d'éviter les problèmes avec un volume unique
+  template:
+    metadata:
+      labels:
+        app: mysql
+    spec:
+      containers:
+        - name: mysql
+          image: mysql:8.0 # Utilise la version 8.0 de MySQL
+          ports:
+            - containerPort: 3306
+          env:
+            - name: MYSQL_ROOT_PASSWORD
+              valueFrom:
+                secretKeyRef:
+                  name: app-secrets
+                  key: DB_PASSWORD
+            - name: MYSQL_DATABASE
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: DB_NAME
+          volumeMounts:
+            # Monte le volume persistant pour stocker les données de la base de données
+            - name: mysql-storage
+              mountPath: /var/lib/mysql
+            # Monte le script d'initialisation (si vous en avez un)
+            - name: mysql-initdb
+              mountPath: /docker-entrypoint-initdb.d
+      volumes:
+        - name: mysql-storage
+          persistentVolumeClaim:
+            claimName: mysql-pvc # Fait référence au PVC défini ci-dessus
+        # Définit le volume basé sur un ConfigMap pour les scripts d'initialisation
+        - name: mysql-initdb
+          configMap:
+            name: mysql-init-script # Assurez-vous que ce ConfigMap existe si vous l'utilisez

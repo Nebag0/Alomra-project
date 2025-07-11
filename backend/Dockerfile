@@ -1,15 +1,15 @@
-FROM node:18-alpine
+# ./backend/Dockerfile
 
-RUN addgroup -g 1001 -S nodejs
-RUN adduser -S nextjs -u 1001
-
-WORKDIR /app
+# Étape 1 : Builder l'application
+FROM node:18-alpine AS builder
+WORKDIR /usr/src/app
 COPY package*.json ./
-RUN npm ci --only=production && npm cache clean --force
+RUN npm install
 COPY . .
-RUN mkdir -p uploads
-RUN chown -R nextjs:nodejs /app
-USER nextjs
 
+# Étape 2 : Créer l'image finale optimisée
+FROM node:18-alpine
+WORKDIR /usr/src/app
+COPY --from=builder /usr/src/app .
 EXPOSE 5000
 CMD ["node", "server.js"] 

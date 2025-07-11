@@ -1,10 +1,22 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: frontend-service
+spec:
+  type: NodePort # Expose le service sur un port de chaque noeud du cluster
+  selector:
+    app: frontend
+  ports:
+    - protocol: TCP
+      port: 3000        # Port du service
+      targetPort: 3000  # Port du conteneur
+      # Le port externe sera entre 30000-32767. Nous utilisons le 30200 que vous aviez dans votre config CORS
+      nodePort: 30200
+---
 apiVersion: apps/v1
 kind: Deployment
 metadata:
   name: frontend-deployment
-  namespace: alomra
-  labels:
-    app: frontend
 spec:
   replicas: 1
   selector:
@@ -16,46 +28,15 @@ spec:
         app: frontend
     spec:
       containers:
-      - name: frontend
-        image: nebag/alomra-project-frontend:latest
-        ports:
-        - containerPort: 3000
-        env:
-        - name: NEXT_PUBLIC_URL
-          value: "http://localhost:30001"
-        - name: NODE_ENV
-          value: "production"
-        resources:
-          requests:
-            memory: "256Mi"
-            cpu: "250m"
-          limits:
-            memory: "512Mi"
-            cpu: "500m"
-        livenessProbe:
-          httpGet:
-            path: /
-            port: 3000
-          initialDelaySeconds: 30
-          periodSeconds: 10
-        readinessProbe:
-          httpGet:
-            path: /
-            port: 3000
-          initialDelaySeconds: 5
-          periodSeconds: 5
----
-apiVersion: v1
-kind: Service
-metadata:
-  name: frontend-service
-  namespace: alomra
-spec:
-  selector:
-    app: frontend
-  ports:
-    - protocol: TCP
-      port: 3000
-      targetPort: 3000
-      nodePort: 30100
-  type: NodePort 
+        - name: frontend
+          # REMPLACEZ par le nom de votre image frontend
+          image: nebag/alomra-project-frontend:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: NEXT_PUBLIC_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: app-config
+                  key: NEXT_PUBLIC_URL
