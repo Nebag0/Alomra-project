@@ -12,6 +12,11 @@ export default function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError("");
+    
+    // Debug: afficher l'URL utilisée
+    console.log('🔗 URL API utilisée:', URL);
+    console.log('📍 URL actuelle:', typeof window !== 'undefined' ? window.location.origin : 'N/A');
+    
     try {
       const res = await fetch(`${URL}/admin/login`, {
         method: "POST",
@@ -22,7 +27,12 @@ export default function Login() {
           mot_de_passe: password
         }),
       });
+      
+      console.log('📡 Réponse du serveur:', res.status, res.statusText);
+      
       const data = await res.json();
+      console.log('📦 Données reçues:', data);
+      
       if (!res.ok) {
         setError(data.message || "Erreur de connexion");
         return;
@@ -43,11 +53,12 @@ export default function Login() {
         setError("Token manquant dans la réponse");
       }
     } catch (err) {
+      console.error('❌ Erreur lors de la requête:', err);
       // Affiche le message d'erreur retourné par l'API si disponible
       if (err.response && err.response.data && err.response.data.message) {
         setError(err.response.data.message);
       } else {
-        setError("Erreur serveur");
+        setError("Erreur serveur - Impossible de se connecter au backend");
       }
     }
   };
