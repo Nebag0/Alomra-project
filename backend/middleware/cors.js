@@ -1,9 +1,8 @@
 const cors = require("cors");
+require("dotenv").config();
 
 const allowedOrigins = [
-  "http://localhost:3000",
-  "http://localhost:30100",
-  "http://127.0.0.1:30100",
+  process.env.FRONTEND_URL || "http://localhost:3001",
 ];
 
 if (process.env.FRONTEND_URL) {
