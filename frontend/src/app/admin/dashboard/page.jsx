@@ -5,6 +5,8 @@ import Sidebar from "@/components/Sidebar";
 import dayjs from 'dayjs';
 import URL from '../../../api';
 import Modal, { FormModal, ConfirmModal } from '@/components/Modal';
+import { BarChart, Bar, LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend, LabelList } from 'recharts';
+import { useMemo } from 'react';
 
 export default function AdminDashboard() {
   const [isConnected, setIsConnected] = useState(false);
@@ -28,6 +30,47 @@ export default function AdminDashboard() {
   const [emailIdToDelete, setEmailIdToDelete] = useState(null);
   const [adminPassword, setAdminPassword] = useState("");
   const [deleteError, setDeleteError] = useState("");
+
+  const [selectedYear, setSelectedYear] = useState('');
+  const [chartType, setChartType] = useState('bar'); // 'bar' ou 'line'
+
+  // Extraire les années disponibles à partir des données
+  const years = useMemo(() => {
+    const set = new Set();
+    data.forEach(item => {
+      if (item.mois) set.add(item.mois.slice(0, 4));
+    });
+    return Array.from(set).sort();
+  }, [data]);
+
+  // Définir l'année sélectionnée par défaut (la plus récente)
+  useEffect(() => {
+    if (years.length > 0 && !selectedYear) {
+      setSelectedYear(years[years.length - 1]);
+    }
+  }, [years, selectedYear]);
+
+  // Préparer les données du graphique pour l'année sélectionnée
+  const months = [
+    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+  ];
+  const chartData = useMemo(() => {
+    // Initialiser chaque mois à 0
+    const arr = months.map((name, i) => ({
+      mois: name.slice(0, 3),
+      count: 0,
+      fullMonth: name,
+      monthIndex: i
+    }));
+    data.forEach(item => {
+      if (item.mois && item.mois.startsWith(selectedYear)) {
+        const monthIdx = parseInt(item.mois.slice(5, 7), 10) - 1;
+        if (arr[monthIdx]) arr[monthIdx].count = item.count;
+      }
+    });
+    return arr;
+  }, [data, selectedYear]);
 
   useEffect(() => {
     const token = localStorage.getItem("token");
@@ -80,16 +123,6 @@ export default function AdminDashboard() {
     setIsConnected(false);
     router.push("/login");
   };
-
-  const months = [
-    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
-    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
-  ];
-  const chartData = Array(12).fill(0);
-  data.forEach(item => {
-    const month = dayjs(item.mois).month();
-    chartData[month] = item.count;
-  });
 
   // Suppression d'un email sécurisée
   const openDeleteModal = (id) => {
@@ -171,29 +204,70 @@ export default function AdminDashboard() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar isConnected={isConnected} handleLogout={handleLogout} role="admin" />
-      <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-4 md:px-12 py-8">
+      <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-2 md:px-12 py-8">
         <h1 className="text-4xl font-extrabold text-indigo-900 mb-4">Bienvenue sur le Dashboard Admin</h1>
         <div className="text-lg text-gray-700 mb-8">Analyse des réclamations par mois</div>
-        <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-4xl mx-auto mb-12">
-          <div className="font-semibold text-lg mb-4">Réclamations par mois</div>
-          <div className="overflow-x-auto">
-            <div className="flex items-end h-80 space-x-6 mb-8 px-8 min-w-[600px]">
-              {chartData.map((count, i) => (
-                <div key={i} className="flex flex-col items-center w-12 group cursor-pointer">
-                  <div
-                    className="bg-indigo-400 group-hover:bg-indigo-600 transition-all duration-200 w-full rounded-t-xl shadow-md relative"
-                    style={{ height: `${count * 16}px`, minHeight: '10px' }}
-                  >
-                    {count > 0 && (
-                      <span className="absolute -top-8 left-1/2 -translate-x-1/2 bg-indigo-700 text-white text-xs rounded px-2 py-1 opacity-0 group-hover:opacity-100 transition-all duration-200 shadow-lg z-10">
-                        {count} réclamations
-                      </span>
-                    )}
-                  </div>
-                  <span className="text-xs mt-3 text-gray-700 font-medium">{months[i].slice(0,3)}</span>
-                </div>
-              ))}
+        <div className="bg-white rounded-2xl shadow-xl p-4 md:p-8 w-full max-w-4xl mx-auto mb-12">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
+            <div className="font-semibold text-lg">Réclamations par mois</div>
+            <div className="flex flex-col md:flex-row gap-2 md:gap-4 items-center">
+              <label className="text-sm font-medium">Année :
+                <select
+                  className="ml-2 border border-gray-300 rounded px-2 py-1"
+                  value={selectedYear}
+                  onChange={e => setSelectedYear(e.target.value)}
+                >
+                  {years.map(y => <option key={y} value={y}>{y}</option>)}
+                </select>
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input
+                  type="radio"
+                  name="chartType"
+                  value="bar"
+                  checked={chartType === 'bar'}
+                  onChange={() => setChartType('bar')}
+                />
+                Barres
+              </label>
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input
+                  type="radio"
+                  name="chartType"
+                  value="line"
+                  checked={chartType === 'line'}
+                  onChange={() => setChartType('line')}
+                />
+                Ligne
+              </label>
             </div>
+          </div>
+          <div className="w-full" style={{ minHeight: 320 }}>
+            <ResponsiveContainer width="100%" height={320}>
+              {chartType === 'bar' ? (
+                <BarChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="mois" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip formatter={v => `${v} réclamations`} />
+                  <Legend />
+                  <Bar dataKey="count" fill="#6366f1" radius={[6, 6, 0, 0]} maxBarSize={40}>
+                    <LabelList dataKey="count" position="top" formatter={v => v > 0 ? v : ''} />
+                  </Bar>
+                </BarChart>
+              ) : (
+                <LineChart data={chartData} margin={{ top: 20, right: 20, left: 0, bottom: 20 }}>
+                  <CartesianGrid strokeDasharray="3 3" />
+                  <XAxis dataKey="mois" tick={{ fontSize: 12 }} />
+                  <YAxis allowDecimals={false} tick={{ fontSize: 12 }} />
+                  <Tooltip formatter={v => `${v} réclamations`} />
+                  <Legend />
+                  <Line type="monotone" dataKey="count" stroke="#6366f1" strokeWidth={3} dot={{ r: 6, fill: '#6366f1' }} activeDot={{ r: 8 }}>
+                    <LabelList dataKey="count" position="top" formatter={v => v > 0 ? v : ''} />
+                  </Line>
+                </LineChart>
+              )}
+            </ResponsiveContainer>
           </div>
         </div>
         {/* Tableau des emails à notifier */}
