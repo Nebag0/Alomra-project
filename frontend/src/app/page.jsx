@@ -1,12 +1,35 @@
-import Link from "next/link"
-import { Cctv, ChartNoAxesCombined, UserCog, Users, ClipboardCheck } from "lucide-react"
+"use client";
+import Link from "next/link";
+import { useEffect, useState } from "react";
 import Image from "next/image";
+import { Cctv, ChartNoAxesCombined, UserCog, Users, ClipboardCheck } from "lucide-react";
 
 export default function Home() {
+  const [redirectUrl, setRedirectUrl] = useState("/login");
+  const [isAuth, setIsAuth] = useState(false);
+
+  useEffect(() => {
+    // Vérifier la présence d'un token
+    const token = typeof window !== "undefined" ? localStorage.getItem("token") : null;
+    if (token) {
+      try {
+        const payload = JSON.parse(atob(token.split('.')[1]));
+        if (payload.role === "admin") {
+          setRedirectUrl("/admin/dashboard");
+          setIsAuth(true);
+        } else if (payload.role === "superviseur") {
+          setRedirectUrl("/superviseur");
+          setIsAuth(true);
+        }
+      } catch {
+        setIsAuth(false);
+        setRedirectUrl("/login");
+      }
+    }
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen">
-      
-
       <main className="flex-1">
         <section className="py-16 px-4 bg-gradient-to-b from-blue-900 to-blue-500 text-white">
           <div className="container mx-auto text-center">
@@ -25,11 +48,11 @@ export default function Home() {
               Les ressources humaines et administrateurs assurent le suivi, la pénalisation et la gestion des comptes superviseurs.
             </p>
             <div className="flex justify-center">
-              <Link href="/login" passHref>
+              <Link href={redirectUrl} passHref>
                 <button
                   className="px-8 py-3 rounded-lg bg-white text-blue-800 font-bold text-lg border border-blue-200 shadow-md transition-all duration-200 hover:bg-blue-50 hover:scale-105 hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-blue-400"
                 >
-                  Se connecter à la plateforme
+                  {isAuth ? "Accéder à la plateforme" : "Se connecter à la plateforme"}
                 </button>
               </Link>
             </div>

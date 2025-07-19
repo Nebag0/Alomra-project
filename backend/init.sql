@@ -41,6 +41,12 @@ CREATE TABLE IF NOT EXISTS reclamation_motif (
     FOREIGN KEY (motif_id) REFERENCES motifs(id)
 );
 
+-- Table des emails à notifier pour les réclamations
+CREATE TABLE IF NOT EXISTS notification_emails (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    email VARCHAR(255) NOT NULL UNIQUE
+);
+
 -- Insertion de l'utilisateur admin par défaut
 -- Email: admin@admin.com, Mot de passe: adminadmin (hashé avec bcrypt)
 INSERT INTO users (nom, prenom, email, mot_de_passe, role) VALUES 

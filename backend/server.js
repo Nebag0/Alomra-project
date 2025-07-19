@@ -35,6 +35,7 @@ app.use('/profil', require('./routes/Profile_routes'));
 // Routes admin (accessible uniquement aux administrateurs)
 app.use('/admin', require('./routes/Users_routes'));
 app.use('/admin', require('./routes/Reclamation_routes'));
+app.use('/admin/notification-emails', require('./routes/NotificationEmail_routes'));
 
 // Routes superviseur
 app.use('/superviseur', require('./routes/Reclamation_routes'));

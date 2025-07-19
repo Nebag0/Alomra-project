@@ -3,6 +3,7 @@ const db = require('../config/connexion_db');
 const nodemailer = require('nodemailer');
 const User = require('../models/Users_models');
 const ReclamationModel = require('../models/Reclamation_model');
+const NotificationEmail = require('../models/NotificationEmail_model');
 require('dotenv').config();
 
 const transporter = nodemailer.createTransport({
@@ -13,9 +14,11 @@ const transporter = nodemailer.createTransport({
   }
 });
 
-const notifyEmails = process.env.NOTIFY_EMAILS ? process.env.NOTIFY_EMAILS.split(',') : [];
-
 async function sendNewReclamationEmail({ superviseur, agent, motifs }) {
+  // Récupérer dynamiquement les emails à notifier depuis la BDD
+  const emails = await NotificationEmail.getAllNotificationEmails();
+  const notifyEmails = emails.map(e => e.email);
+  if (notifyEmails.length === 0) return; // Pas d'emails à notifier
   const mailOptions = {
     from: process.env.EMAIL_USER,
     to: notifyEmails,
