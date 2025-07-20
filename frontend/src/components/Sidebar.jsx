@@ -24,10 +24,9 @@ export default function Sidebar({ isConnected, handleLogout, role = "admin" }) {
     <>
       {/* Sidebar desktop */}
       <nav className="hidden md:flex flex-col w-60 bg-gradient-to-b from-indigo-700 to-indigo-900 text-white py-8 px-4 shadow-lg fixed h-full z-20">
-        <div className="flex items-center gap-2 mb-10">
-          <img src="/alomra.svg" alt="Logo" className="h-10 w-10" />
-          <span className="text-xl font-bold tracking-wide">Alomra</span>
-        </div>
+        <Link className="flex items-center gap-2 mb-10" href="/">
+          <img src="/alomra.svg" alt="Logo" style={{ width: 254, height: 80, objectFit: 'contain' }} />
+        </Link>
         <ul className="flex flex-col gap-4 flex-1">
           {links.map(link => (
             <li key={link.href}>
@@ -52,8 +51,9 @@ export default function Sidebar({ isConnected, handleLogout, role = "admin" }) {
       {/* Topbar mobile */}
       <nav className="md:hidden flex items-center justify-between w-full bg-gradient-to-r from-indigo-700 to-indigo-900 text-white px-4 py-3 shadow-lg fixed top-0 left-0 z-30">
         <div className="flex items-center gap-2">
-          <img src="/alomra.svg" alt="Logo" className="h-8 w-8" />
-          <span className="text-lg font-bold">Alomra</span>
+          <Link className="flex items-center gap-2" href="/">
+            <img src="/alomra.svg" alt="Logo" style={{ width: 254, height: 80, objectFit: 'contain' }} />
+          </Link>
         </div>
         <button
           className="focus:outline-none"

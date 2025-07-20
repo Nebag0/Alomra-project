@@ -66,12 +66,15 @@ export default function Login() {
   return (
     <div className="relative flex min-h-screen items-center justify-center px-6 lg:px-8 py-12 bg-white text-gray-900">
       <div className="flex flex-col md:flex-row items-center justify-center w-full max-w-4xl md:gap-40">
-        <div className="sm:mx-auto sm:w-full sm:max-w-sm flex-shrink-0 flex justify-center md:justify-end ">
-          <img
-            alt="Alomra Logo"
-            src="alomra.svg"
-            className="mx-auto h-40 md:h-100 w-auto"
-          />
+        <div className="sm:mx-auto sm:w-full sm:max-w-sm flex-shrink-0 flex justify-center md:justify-end  ">
+          <a href="/">
+            <img
+              alt="Alomra Logo"
+              src="alomra.svg"
+              className="mx-auto w-[254px] h-[80px] md:w-[400px] md:h-[120px]"
+              style={{ objectFit: 'contain', maxWidth: '100%' }}
+            />
+          </a>
         </div>
 
         {/* Form */}
