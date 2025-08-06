@@ -78,9 +78,9 @@ export default function AdminReclamations() {
         setIsConnected(false);
         router.push("/login");
       }} role="admin" />
-      <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-4 md:px-12 py-8">
+      <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-4 md:px-12 py-8 mt-5">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-indigo-900">Toutes les réclamations</h1>
+          <h1 className="text-3xl font-bold text-indigo-900">Toutes les sanctions disciplinaires</h1>
         </div>
         <div className="flex flex-col md:flex-row gap-4 mb-4 items-center">
           <input
@@ -109,7 +109,7 @@ export default function AdminReclamations() {
                   <tr
                     key={r.id}
                     className="hover:bg-indigo-50 transition cursor-pointer"
-                    onClick={() => router.push(`/admin/reclamations/${r.id}`)}
+                    onClick={() => router.push(`/admin/sanctions/${r.id}`)}
                   >
                     <td className="py-2 px-4">{r.nom_agent} {r.prenom_agent}</td>
                     <td className="py-2 px-4">{dayjs(r.date_reclamation).format('DD/MM/YYYY')}</td>

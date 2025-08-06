@@ -2,7 +2,7 @@
 import Link from "next/link";
 import { useEffect, useState } from "react";
 import Image from "next/image";
-import { Cctv, ChartNoAxesCombined, UserCog, Users, ClipboardCheck } from "lucide-react";
+import { AtSign , ChartNoAxesCombined, UserCog, Users, ClipboardCheck } from "lucide-react";
 
 export default function Home() {
   const [redirectUrl, setRedirectUrl] = useState("/login");
@@ -41,12 +41,8 @@ export default function Home() {
               className="mx-auto mb-6"
               priority  
             />          
-            <h1 className="text-4xl font-bold mb-6 drop-shadow-lg">Gestion centralisée des sanctions disciplinaires agents</h1>
-            <p className="text-xl max-w-2xl mx-auto mb-8">
-              Plateforme interne dédiée à la gestion et au suivi des plaintes contre les agents de sécurité de la société Alomra. 
-              Les superviseurs peuvent signaler les retards, abandons de poste, tenue non conforme, etc. 
-              Les ressources humaines et administrateurs assurent le suivi, la pénalisation et la gestion des comptes superviseurs.
-            </p>
+            <h1 className="text-4xl font-bold mb-6 drop-shadow-lg">Gestion centralisée des sanctions disciplinaires </h1>
+            
             <div className="flex justify-center">
               <Link href={redirectUrl} passHref>
                 <button
@@ -69,10 +65,7 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-blue-800 text-center">Pour les Superviseurs</h3>
                 <p className="text-gray-600 mb-2 text-center">
-                  Déposez des plaintes sur vos agents : retards, absences, abandon de poste, tenue non conforme, etc.
-                </p>
-                <p className="text-gray-600 text-center">
-                  Consultez l’historique de vos signalements par site et par agent.
+                  Demander l'application des sanctions disciplinaires envers les agents pour les differents motifs: retards, abandon de poste, etc.
                 </p>
               </div>
 
@@ -80,12 +73,10 @@ export default function Home() {
                 <div className="bg-blue-100 p-3 rounded-full w-fit mb-4 mx-auto">
                   <UserCog className="h-8 w-8 text-blue-700" />
                 </div>
-                <h3 className="text-xl font-bold mb-3 text-blue-800 text-center">Pour les Ressources Humaines</h3>
+                <h3 className="text-xl font-bold mb-3 text-blue-800 text-center">Pour les Admins</h3>
+                <h4 className="text-l font-bold mb-3 text-blue-800 text-center">(RH & DOP)</h4>
                 <p className="text-gray-600 mb-2 text-center">
-                  Accédez à toutes les plaintes déposées par les superviseurs.
-                </p>
-                <p className="text-gray-600 text-center">
-                  Gérez les pénalités, suivez les statistiques, et administrez les comptes superviseurs.
+                   Rédiger les sanctions demandees à infliger aux agents ayant fait l’objet de mesures disciplinaires.
                 </p>
               </div>
 
@@ -95,23 +86,17 @@ export default function Home() {
                 </div>
                 <h3 className="text-xl font-bold mb-3 text-blue-800 text-center">Suivi & Statistiques</h3>
                 <p className="text-gray-600 mb-2 text-center">
-                  Visualisez les plaintes par mois, année, site ou agent.
-                </p>
-                <p className="text-gray-600 text-center">
-                  Analysez les tendances pour améliorer la gestion des équipes.
+                  Assurer un suivi et avoir des statistiques des sanctions disciplinaires par mois ou/et par année.
                 </p>
               </div>
 
               <div className="bg-white p-6 rounded-lg shadow-md border border-blue-100 hover:shadow-xl transition-shadow duration-200">
                 <div className="bg-blue-100 p-3 rounded-full w-fit mb-4 mx-auto">
-                  <Cctv className="h-8 w-8 text-blue-700" />
+                  <AtSign className="h-8 w-8 text-blue-700" />
                 </div>
-                <h3 className="text-xl font-bold mb-3 text-blue-800 text-center">Gestion des Sites</h3>
+                <h3 className="text-xl font-bold mb-3 text-blue-800 text-center">Notification par email</h3>
                 <p className="text-gray-600 mb-2 text-center">
-                  Gérez l’affectation des agents par site, de jour comme de nuit.
-                </p>
-                <p className="text-gray-600 text-center">
-                  Suivi précis des équipes sur chaque site supervisé.
+                  Choisir les personnes à notifier après l'ajout d'une nouvelle demande de sanctions disciplinaires.
                 </p>
               </div>
             </div>

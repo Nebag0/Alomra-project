@@ -204,12 +204,11 @@ export default function AdminDashboard() {
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar isConnected={isConnected} handleLogout={handleLogout} role="admin" />
-      <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-2 md:px-12 py-8">
+      <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-2 md:px-12 py-8 mt-5">
         <h1 className="text-4xl font-extrabold text-indigo-900 mb-4">Bienvenue sur le Dashboard Admin</h1>
-        <div className="text-lg text-gray-700 mb-8">Analyse des réclamations par mois</div>
         <div className="bg-white rounded-2xl shadow-xl p-4 md:p-8 w-full max-w-4xl mx-auto mb-12">
           <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-4">
-            <div className="font-semibold text-lg">Réclamations par mois</div>
+            <div className="font-semibold text-lg">Sanctions disciplinaires par mois</div>
             <div className="flex flex-col md:flex-row gap-2 md:gap-4 items-center">
               <label className="text-sm font-medium">Année :
                 <select
@@ -273,7 +272,7 @@ export default function AdminDashboard() {
         {/* Tableau des emails à notifier */}
         <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-4xl mx-auto mt-8">
           <div className="flex items-center justify-between mb-4">
-            <div className="font-semibold text-lg">Emails à notifier lors d'une nouvelle réclamation</div>
+            <div className="font-semibold text-lg">Emails à notifier lors d'une nouvelle sanction disciplinaire</div>
             <button onClick={() => setShowAddModal(true)} className="bg-indigo-600 text-white px-4 py-2 rounded hover:bg-indigo-700 transition">Ajouter un email</button>
           </div>
           {emailError && <div className="text-red-500 mb-2">{emailError}</div>}

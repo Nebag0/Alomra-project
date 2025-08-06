@@ -112,7 +112,7 @@ export default function AdminHome() {
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar isConnected={isConnected} handleLogout={handleLogout} role="admin" />
       {/* Main content */}
-      <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-4 md:px-12 py-8">
+      <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-4 md:px-12 py-8 mt-5">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
           <h1 className="text-3xl font-bold text-indigo-900">Gestion des utilisateurs</h1>
           <button

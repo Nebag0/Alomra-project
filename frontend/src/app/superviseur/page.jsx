@@ -4,7 +4,6 @@ import { useRouter } from "next/navigation";
 import Sidebar from "@/components/Sidebar";
 import { FormModal } from "@/components/Modal";
 import DropdownMultiSelect from "@/components/DropdownMultiSelect";
-import dayjs from 'dayjs';
 import URL from '../../api';
 
 export default function UserHome() {
@@ -123,15 +122,15 @@ export default function UserHome() {
       <Sidebar isConnected={isConnected} handleLogout={handleLogout} role="superviseur" />
 
       {/* Main content */}
-      <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-4 md:px-12 py-8">
+      <main className="flex-1 md:ml-60 w-full pt-16 md:pt-0 px-4 md:px-12 py-8 mt-5">
         <div className="flex flex-col md:flex-row justify-between items-center mb-6 gap-4">
-          <h1 className="text-3xl font-bold text-indigo-900">Mes réclamations</h1>
+          <h1 className="text-3xl font-bold text-indigo-900">Mes demandes de sanctions disciplinaires</h1>
           <button
             type="button"
             onClick={() => setShowModal(true)}
             className="bg-gradient-to-r from-indigo-600 via-purple-500 to-indigo-500 text-white px-6 py-2 rounded shadow hover:from-indigo-700 hover:to-purple-600 transition font-semibold"
           >
-            + Ajouter une réclamation
+            + Ajouter une demande
           </button>
         </div>
         {success && <div className="text-green-600 mb-2">{success}</div>}
@@ -189,75 +188,98 @@ export default function UserHome() {
           open={showModal}
           onClose={() => setShowModal(false)}
           onSubmit={handleSubmit}
-          title="Ajouter une réclamation"
+          title="Ajouter une demande de sanction disciplinaire"
           submitText="Ajouter"
           cancelText="Annuler"
+          size="lg"
         >
-          <input
-            name="nom_agent"
-            value={form.nom_agent}
-            onChange={handleChange}
-            placeholder="Nom agent"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-          <input
-            name="prenom_agent"
-            value={form.prenom_agent}
-            onChange={handleChange}
-            placeholder="Prénom agent"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-          <input
-            name="cin_agent"
-            value={form.cin_agent}
-            onChange={handleChange}
-            placeholder="CIN agent"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-          <textarea
-            name="description"
-            value={form.description}
-            onChange={handleChange}
-            placeholder="Description"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-          <input
-            name="date_reclamation"
-            type="date"
-            value={form.date_reclamation}
-            onChange={handleChange}
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-          <input
-            name="site_affectation"
-            value={form.site_affectation}
-            onChange={handleChange}
-            placeholder="Site d'affectation"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-          <input
-            name="poste"
-            value={form.poste}
-            onChange={handleChange}
-            placeholder="Poste"
-            className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
-            required
-          />
-          <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">Motif(s)</label>
-            <DropdownMultiSelect
-              options={motifs}
-              value={form.motifIds}
-              onChange={motifIds => setForm(f => ({ ...f, motifIds }))}
-              placeholder="Choisir un ou plusieurs motifs..."
-            />
-            {form.motifIds.length === 0 && <div className="text-red-500 text-xs mt-1">Veuillez sélectionner au moins un motif.</div>}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Nom de l'agent *</label>
+              <input
+                name="nom_agent"
+                value={form.nom_agent}
+                onChange={handleChange}
+                placeholder="Nom de l'agent"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Prénom de l'agent *</label>
+              <input
+                name="prenom_agent"
+                value={form.prenom_agent}
+                onChange={handleChange}
+                placeholder="Prénom de l'agent"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">CIN de l'agent</label>
+              <input
+                name="cin_agent"
+                value={form.cin_agent}
+                onChange={handleChange}
+                placeholder="CIN de l'agent"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date de la sanction *</label>
+              <input
+                name="date_reclamation"
+                type="date"
+                value={form.date_reclamation}
+                onChange={handleChange}
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Site d'affectation *</label>
+              <input
+                name="site_affectation"
+                value={form.site_affectation}
+                onChange={handleChange}
+                placeholder="Site d'affectation"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Poste *</label>
+              <input
+                name="poste"
+                value={form.poste}
+                onChange={handleChange}
+                placeholder="Poste de l'agent"
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                required
+              />
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Motif(s) *</label>
+              <DropdownMultiSelect
+                options={motifs}
+                value={form.motifIds}
+                onChange={motifIds => setForm(f => ({ ...f, motifIds }))}
+                placeholder="Choisir un ou plusieurs motifs..."
+              />
+              {form.motifIds.length === 0 && <div className="text-red-500 text-xs mt-1">Veuillez sélectionner au moins un motif.</div>}
+            </div>
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Description/Observation</label>
+              <textarea
+                name="description"
+                value={form.description}
+                onChange={handleChange}
+                placeholder="Description détaillée de la sanction..."
+                className="w-full border border-gray-300 rounded-md px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                rows="4"
+              />
+            </div>
           </div>
           {error && <div className="text-red-500 text-sm mt-2">{error}</div>}
         </FormModal>

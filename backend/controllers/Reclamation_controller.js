@@ -23,7 +23,7 @@ async function sendNewReclamationEmail({ superviseur, agent, motifs }) {
     from: process.env.EMAIL_USER,
     to: notifyEmails,
     subject: 'Sanction disciplinaire',
-    text: `Bonjour,\n\nUne nouvelle réclamation a été créée.\n\nSuperviseur : ${superviseur.nom} ${superviseur.prenom}\nTéléphone superviseur : ${superviseur.telephone}\n\nAgent à sanctionner : ${agent.nom} ${agent.prenom}\nTéléphone agent : ${agent.telephone}\n\nMotifs : ${motifs}\n\nMerci de compléter les champs manquants avant d'envoyer ce mail.\n\nCeci est un email automatique.`
+    text: `Bonjour,\n\nUne nouvelle réclamation a été créée.\nSuperviseur : ${superviseur.nom} ${superviseur.prenom}\nTéléphone superviseur : ${superviseur.telephone}\n\nAgent à sanctionner : ${agent.nom} ${agent.prenom}\nSite d'affectation : ${agent.site_affectation}\n\nMotifs : ${motifs}\n\nMerci de faire le necessaire qui s'impose.\n\nCeci est un email automatique.\nCordialement`
   };
   await transporter.sendMail(mailOptions);
 }
@@ -35,18 +35,14 @@ create_reclamation = async (req, res) => {
     } = req.body;
 
     // Vérifier les champs obligatoires
-    if (!nom_agent || !prenom_agent || !cin_agent || !description ||
-        !date_reclamation || !site_affectation || !poste || !created_by || !Array.isArray(motifIds) || motifIds.length === 0) {
-        return res.status(400).json({ error: "Tous les champs obligatoires doivent être remplis et au moins un motif doit être sélectionné." });
+    if (!nom_agent || !prenom_agent || !date_reclamation || !site_affectation || !poste || !created_by || !Array.isArray(motifIds) || motifIds.length === 0) {
+        return res.status(400).json({ error: "Tous les champs obligatoires doivent être remplis : nom, prénom, date, site d'affectation, poste et au moins un motif doit être sélectionné." });
     }
 
     try {
         // Vérification via le modèle
         const exists = await Reclamation.existsReclamation(cin_agent, date_reclamation);
-        if (exists) {
-            return res.status(409).json({ error: "Une réclamation pour cet agent à cette date existe déjà." });
-        }
-
+        
         // Création de la réclamation et liaison des motifs
         const reclamationId = await Reclamation.createReclamation(req.body, motifIds);
 

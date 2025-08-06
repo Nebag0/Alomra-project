@@ -131,10 +131,11 @@ export function FormModal({
   children, 
   submitText = "Enregistrer",
   cancelText = "Annuler",
-  loading = false
+  loading = false,
+  size = "md"
 }) {
   return (
-    <Modal open={open} onClose={onClose} title={title}>
+    <Modal open={open} onClose={onClose} title={title} size={size}>
       <form onSubmit={onSubmit} className="space-y-4">
         {children}
         <div className="flex gap-3 pt-2">
