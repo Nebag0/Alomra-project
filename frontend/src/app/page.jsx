@@ -41,7 +41,7 @@ export default function Home() {
               className="mx-auto mb-6"
               priority  
             />          
-            <h1 className="text-4xl font-bold mb-6 drop-shadow-lg">Gestion centralisée des plaintes agents</h1>
+            <h1 className="text-4xl font-bold mb-6 drop-shadow-lg">Gestion centralisée des sanctions disciplinaires agents</h1>
             <p className="text-xl max-w-2xl mx-auto mb-8">
               Plateforme interne dédiée à la gestion et au suivi des plaintes contre les agents de sécurité de la société Alomra. 
               Les superviseurs peuvent signaler les retards, abandons de poste, tenue non conforme, etc. 
