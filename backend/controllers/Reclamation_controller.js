@@ -49,7 +49,7 @@ create_reclamation = async (req, res) => {
         // Récupérer infos superviseur
         const superviseur = await User.getUserById(created_by);
         // Récupérer téléphone agent si possible (à adapter selon ta structure)
-        const agent = { nom: nom_agent, prenom: prenom_agent, telephone: telephone_agent || '' };
+        const agent = { nom: nom_agent, prenom: prenom_agent, telephone: telephone_agent || '', site_affectation };
         // Récupérer les noms des motifs
         const motifNames = await ReclamationModel.getMotifNamesByIds(motifIds);
         await sendNewReclamationEmail({ superviseur, agent, motifs: motifNames.join(', ') });
@@ -216,4 +216,5 @@ module.exports = {
     get_motifs,
     get_reclamations_stats_by_month,
     get_reclamations_stats_by_superviseur
+    
 };
